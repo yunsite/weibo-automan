@@ -5,29 +5,27 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import weibo4j.Status;
-import weibo4j.Weibo;
 import weibo4j.WeiboException;
 import weiboautoman.timer.bo.UsersTimeMsgBO;
 import weiboautoman.timer.core.Constants;
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
+import weiboautoman.timer.job.sender.WeiboSender;
 import weiboautoman.timer.util.NumberUtil;
-import weiboautoman.timer.util.StringUtil;
 
 /**
  * 类WeiboSenderThread.java的实现描述：发送微博的线程
  * 
  * @author fenglibin 2011-10-6 下午03:00:18
  */
-public class WeiboSenderThread implements Runnable {
+public class WeiboSenderThread implements Runnable, Cloneable {
 
-    private static Logger   log = LoggerFactory.getLogger(WeiboSenderThread.class);
-    int                     userIdFirstNumber;
-    private UsersTimeMsgDAO usersTimeMsgDAO;
-    private UsersTimeMsgBO  usersTimeMsgBO;
-    private String          imagePath;
+    private static Logger     log = LoggerFactory.getLogger(WeiboSenderThread.class);
+    int                       userIdFirstNumber;
+    private UsersTimeMsgDAO   usersTimeMsgDAO;
+    private UsersTimeMsgBO    usersTimeMsgBO;
+    private String            imagePath;
+    private List<WeiboSender> weiboSender;
 
     @Override
     public void run() {
@@ -85,30 +83,21 @@ public class WeiboSenderThread implements Runnable {
     }
 
     /**
-     * 执行发送的动作
+     * 执行发送的动作。如果涉及到多个同条消息要发送到多个微博，只要有一种发送成功了，就认为是发送成功了
      * 
      * @param msgVO
-     * @return
+     * @return 返回微博发送的结果
      * @throws WeiboException
      */
     private boolean doSend(UsersTimeMsgVO msgVO) throws WeiboException {
         boolean success = Boolean.FALSE;
-        Weibo weibo = new Weibo();
-        weibo.setToken(msgVO.getToken(), msgVO.getTokenSecret());
-        Status status = null;
-        if (!StringUtil.isNull(msgVO.getMsgPicture())) {// 带图片的微博
-            status = weibo.uploadStatus(msgVO.getMsgContent(), new File(imagePath + msgVO.getMsgPicture()));
-        } else {
-            status = weibo.updateStatus(msgVO.getMsgContent());
-        }
-        if (status.equals(Boolean.TRUE)) {
-            success = Boolean.TRUE;
-        } else {
-            if (log.isWarnEnabled()) {
-                log.warn("发生微博失败：" + status.getText());
+        for (WeiboSender sender : weiboSender) {
+            boolean sendResutl = sender.send(msgVO);
+            if (!success) {
+                /** 这里有可能涉及到同一条消息要发送到多种微博，如新浪微博、QQ微博等，其中有可能有发送失败的，这里默认只要有一个发送成功，就默认为发送成功了 */
+                success = sendResutl;
             }
         }
-
         return success;
     }
 
@@ -134,6 +123,10 @@ public class WeiboSenderThread implements Runnable {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public void setWeiboSender(List<WeiboSender> weiboSender) {
+        this.weiboSender = weiboSender;
     }
 
 }
