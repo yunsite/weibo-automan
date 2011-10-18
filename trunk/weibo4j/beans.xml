@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="GB2312"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans default-autowire="byName">
-	<!--数据源配置（开始）-->
+	<!--数据源配置（开始） -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-	        destroy-method="close">
-	        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
-	        <property name="url" value="jdbc:mysql://127.0.0.1:3306/weibo?characterEncoding=utf8" />
-            <property name="username" value="root" />
-            <property name="password" value="1212121212" />
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://127.0.0.1:3306/weibo?characterEncoding=utf8" />
+		<property name="username" value="root" />
+		<property name="password" value="1212121212" />
 	</bean>
 	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
 		<property name="configLocation">
@@ -27,54 +28,60 @@
 			<ref local="dataSource" />
 		</property>
 	</bean>
-	<!--数据源配置（结束）-->
-	
-	<!--DAO配置（开始）-->
+	<!--数据源配置（结束） -->
+
+	<!--DAO配置（开始） -->
 	<bean id="msgDAO" class="weiboautoman.timer.dao.ibatis.MsgDAOImpl"></bean>
 	<bean id="msgTypeDAO" class="weiboautoman.timer.dao.ibatis.MsgTypeDAOImpl"></bean>
 	<bean id="usersDAO" class="weiboautoman.timer.dao.ibatis.UsersDAOImpl"></bean>
 	<bean id="usersTimeMsgDAO" class="weiboautoman.timer.dao.ibatis.UsersTimeMsgDAOImpl"></bean>
 	<bean id="usersWeiboDAO" class="weiboautoman.timer.dao.ibatis.UsersWeiboDAOImpl"></bean>
-	<!--DAO配置（结束）-->
-	
-	<!--定时器任务配置（开始）-->	 
+	<!--DAO配置（结束） -->
+
+	<!--定时器任务配置（开始） -->
 	<bean id="scheduledSendWeiboMsgJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="sendWeiboMsgJob" />
 		<property name="targetMethod" value="execute" />
 	</bean>
-	<bean id="sendWeiboMsgJobTrigger"  
-	    class="org.springframework.scheduling.quartz.SimpleTriggerBean">  
-	    <property name="jobDetail" ref="scheduledSendWeiboMsgJob" />  
-	    <property name="startDelay" value="10000" />
-	    <!-- 每1分钟执行一次 -->
-	    <property name="repeatInterval" value="60000" />
+	<bean id="sendWeiboMsgJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="scheduledSendWeiboMsgJob" />
+		<property name="startDelay" value="10000" />
+		<!-- 每1分钟执行一次 -->
+		<property name="repeatInterval" value="60000" />
 	</bean>
-	<bean id="schedulerFactory"  
-	    class="org.springframework.scheduling.quartz.SchedulerFactoryBean" autowire="no">  
-	    <property name="triggers">  
-	        <list>  
-	            <ref bean="sendWeiboMsgJobTrigger" />  
-	        </list>  
-	    </property>  
-	    <property name="autoStartup" value="false"/>
+	<bean id="schedulerFactory"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+		autowire="no">
+		<property name="triggers">
+			<list>
+				<ref bean="sendWeiboMsgJobTrigger" />
+			</list>
+		</property>
+		<property name="autoStartup" value="false" />
 	</bean>
 	<bean id="sendWeiboMsgJob" class="weiboautoman.timer.job.SendWeiboMsgJob">
 		<property name="weiboSenderThread">
 			<ref local="weiboSenderThread"></ref>
 		</property>
 	</bean>
-	<!--定时器任务配置（结束）-->
-	
-	<!--发送微博的线程-->
+	<!--定时器任务配置（结束） -->
+
+	<!--发送微博的线程 -->
 	<bean id="weiboSenderThread" class="weiboautoman.timer.job.WeiboSenderThread">
 		<!-- 存放图片的路径前缀 -->
 		<property name="imagePath">
 			<value>D:/image/</value>
 		</property>
+		<property name="weiboSender">
+			<list>
+				<bean class="weiboautoman.timer.job.sender.SinaWeiboSender"></bean>
+				<bean class="weiboautoman.timer.job.sender.QQWeiboSender"></bean>
+			</list>
+		</property>
 	</bean>
-	
-	<!--BO配置（开始）-->
+
+	<!--BO配置（开始） -->
 	<bean id="usersTimeMsgBO" class="weiboautoman.timer.bo.UsersTimeMsgBO"></bean>
-	<!--BO配置（结束）-->
+	<!--BO配置（结束） -->
 </beans>
