@@ -23,13 +23,13 @@ public class SinaWeiboSender extends WeiboSender {
     private static final String SINA_WEIBO_MARK = "S";
 
     @Override
-    public boolean send(UsersTimeMsgVO msgVO) {
-        boolean success = Boolean.FALSE;
+    public Status send(UsersTimeMsgVO msgVO) {
+        Status status = null;
         String type = super.getWeiboType(msgVO);
         if (type.indexOf(SINA_WEIBO_MARK) < 0) {
-            return Boolean.TRUE;
+            return status;
         }
-        Status status = null;
+
         try {
             Weibo weibo = new Weibo();
             weibo.setToken(msgVO.getToken(), msgVO.getTokenSecret());
@@ -39,24 +39,22 @@ public class SinaWeiboSender extends WeiboSender {
             } else {
                 status = weibo.updateStatus(msgVO.getMsgContent());
             }
-            if (status.equals(Boolean.TRUE)) {
-                success = Boolean.TRUE;
-            } else {
+            if (!status.equals(Boolean.TRUE)) {
                 if (log.isWarnEnabled()) {
-                    log.warn("发生微博失败：" + status.getText());
+                    log.warn("发送微博失败：" + status.getText());
                 }
             }
         } catch (WeiboException e) {
             if (log.isErrorEnabled()) {
-                log.error("发生微博失败：" + getErrText(status) + ".", e);
+                log.error("发送微博失败：" + getErrText(status) + ".", e);
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error("发生微博失败：" + e.getMessage(), e);
+                log.error("发送微博失败：" + e.getMessage(), e);
             }
         }
 
-        return success;
+        return status;
     }
 
     private String getErrText(Status s) {

@@ -9,48 +9,37 @@
     <result column="msg_picture" property="msgPicture" jdbcType="VARCHAR" />
     <result column="send_time" property="sendTime" jdbcType="INTEGER" />
     <result column="is_send" property="isSend" jdbcType="CHAR" />
-  </resultMap>
-  <resultMap class="weiboautoman.timer.dataobject.vo.UsersTimeMsgVO" id="UsersTimeMsgVOMap">
-    <result column="id" jdbcType="BIGINT" property="id" />
-    <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="weibo_id" jdbcType="VARCHAR" property="weiboId" />
-    <result column="msg_content" property="msgContent" jdbcType="VARCHAR" />
-    <result column="msg_picture" property="msgPicture" jdbcType="VARCHAR" />
-    <result column="send_time" jdbcType="INTEGER" property="sendTime" />
-    <result column="is_send" jdbcType="CHAR" property="isSend" />
-    <result column="token" jdbcType="VARCHAR" property="token" />
-    <result column="token_secret" jdbcType="VARCHAR" property="tokenSecret" />
-    <result column="weibo_type" property="weiboType" jdbcType="CHAR" />
+    <result column="send_result" property="sendResult" jdbcType="VARCHAR" />
+    <result column="msg_id" property="msgId" jdbcType="BIGINT" />
   </resultMap>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="weiboautoman.timer.dataobject.UsersTimeMsg" >
-    select id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send
+    select id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send, send_result, msg_id
     from users_time_msg
     where id = #id:BIGINT#
   </select>
   <!--查询满足条件的记录数-->
   <select id="selectByUserIdFirstNumberLikeCount" parameterClass="java.lang.String" resultClass="java.lang.Long">
   	select count(*) 
-  		from users_time_msg utm left join users_weibo uw on utm.user_id=uw.user_id and utm.weibo_id=uw.weibo_id 
-  		where utm.is_send='n' and unix_timestamp(now())>=utm.send_time
-  			and utm.user_id like #userIdFirstNumber#
+  		from users_time_msg 
+  		where upper(is_send)!='Y' and unix_timestamp(now())>=send_time
+  			and user_id like #userIdFirstNumber#
   </select>
   <!--翻页查询记录-->
-  <select id="selectByUserIdFirstNumberLike" parameterClass="java.util.Map" resultMap="UsersTimeMsgVOMap">
-  	select utm.id id,utm.user_id user_id,utm.weibo_id weibo_id,utm.msg_content msg_content,utm.msg_picture msg_picture,
-  		utm.send_time send_time,utm.is_send is_send,uw.token token,uw.token_secret toke_secret,uw.weibo_type 
-  		from users_time_msg utm left join users_weibo uw on utm.user_id=uw.user_id and utm.weibo_id=uw.weibo_id 
-  		where utm.is_send='n' and unix_timestamp(now())>=utm.send_time
-  			and utm.user_id like #userIdFirstNumber#
-  		limit #start#,#pageSize#
+  <select id="selectByUserIdFirstNumberLike" parameterClass="java.util.Map" resultMap="BaseResultMap">
+  	select id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send, send_result, msg_id
+    from users_time_msg
+  	where upper(is_send)!='Y' and unix_timestamp(now())>=send_time
+  		and user_id like #userIdFirstNumber#
+  	limit #start#,#pageSize#
   </select>
   <delete id="deleteByPrimaryKey" parameterClass="weiboautoman.timer.dataobject.UsersTimeMsg" >
     delete from users_time_msg
     where id = #id:BIGINT#
   </delete>
   <insert id="insert" parameterClass="weiboautoman.timer.dataobject.UsersTimeMsg" >
-    insert into users_time_msg (id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send)
+    insert into users_time_msg (id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send, send_result, msg_id)
     values (#id:BIGINT#, #userId:BIGINT#, #weiboId:VARCHAR#, #msgContent:VARCHAR#,
-      #msgPicture:VARCHAR#, #sendTime:INTEGER#, #isSend:CHAR#)
+      #msgPicture:VARCHAR#, #sendTime:INTEGER#, #isSend:CHAR#, #sendResult:VARCHAR#, #msgId:BIGINT#)
   </insert>
   <insert id="insertSelective" parameterClass="weiboautoman.timer.dataobject.UsersTimeMsg" >
     insert into users_time_msg
@@ -75,6 +64,12 @@
       </isNotNull>
       <isNotNull prepend="," property="isSend" >
         is_send
+      </isNotNull>
+      <isNotNull prepend="," property="sendResult" >
+        send_result
+      </isNotNull>
+      <isNotNull prepend="," property="msgId" >
+        msg_id
       </isNotNull>
       )
     </dynamic>
@@ -101,6 +96,12 @@
       <isNotNull prepend="," property="isSend" >
         #isSend:CHAR#
       </isNotNull>
+      <isNotNull prepend="," property="sendResult" >
+        #sendResult:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="msgId" >
+        #msgId:BIGINT#
+      </isNotNull>
       )
     </dynamic>
   </insert>
@@ -125,6 +126,12 @@
       <isNotNull prepend="," property="isSend" >
         is_send = #isSend:CHAR#
       </isNotNull>
+      <isNotNull prepend="," property="sendResult" >
+        send_result = #sendResult:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="msgId" >
+        msg_id = #msgId:BIGINT#
+      </isNotNull>
     </dynamic>
     where id = #id:BIGINT#
   </update>
@@ -135,7 +142,9 @@
       msg_content = #msgContent:VARCHAR#,
       msg_picture = #msgPicture:VARCHAR#,
       send_time = #sendTime:INTEGER#,
-      is_send = #isSend:CHAR#
+      is_send = #isSend:CHAR#,
+      send_result = #sendResult:VARCHAR#,
+      msg_id = #msgId:BIGINT#
     where id = #id:BIGINT#
   </update>
 </sqlMap>

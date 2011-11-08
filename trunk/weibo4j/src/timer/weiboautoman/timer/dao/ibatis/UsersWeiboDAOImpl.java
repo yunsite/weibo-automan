@@ -4,10 +4,11 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 import weiboautoman.timer.dao.UsersWeiboDAO;
 import weiboautoman.timer.dataobject.UsersWeibo;
+import weiboautoman.timer.dataobject.vo.UsersWeiboVO;
 
 public class UsersWeiboDAOImpl extends SqlMapClientDaoSupport implements UsersWeiboDAO {
 
-    public UsersWeiboDAOImpl() {
+    public UsersWeiboDAOImpl(){
         super();
     }
 
@@ -41,5 +42,14 @@ public class UsersWeiboDAOImpl extends SqlMapClientDaoSupport implements UsersWe
     public int updateByPrimaryKey(UsersWeibo record) {
         int rows = getSqlMapClientTemplate().update("users_weibo.updateByPrimaryKey", record);
         return rows;
+    }
+
+    @Override
+    public UsersWeiboVO selectByPrimaryKeySmall(Long id) {
+        UsersWeibo key = new UsersWeibo();
+        key.setId(id);
+        UsersWeiboVO record = (UsersWeiboVO) getSqlMapClientTemplate().queryForObject("users_weibo.selectByPrimaryKeySmall",
+                                                                                      key);
+        return record;
     }
 }

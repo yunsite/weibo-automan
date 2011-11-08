@@ -14,11 +14,26 @@
     <result column="head" property="head" jdbcType="VARCHAR" />
     <result column="introduction" property="introduction" jdbcType="VARCHAR" />
   </resultMap>
+  <resultMap id="SmallResultMap" class="weiboautoman.timer.dataobject.vo.UsersWeiboVO" >
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_id" property="userId" jdbcType="BIGINT" />
+    <result column="weibo_id" property="weiboId" jdbcType="VARCHAR" />
+    <result column="weibo_email" property="weiboEmail" jdbcType="VARCHAR" />
+    <result column="token" property="token" jdbcType="VARCHAR" />
+    <result column="token_secret" property="tokenSecret" jdbcType="VARCHAR" />
+    <result column="weibo_type" property="weiboType" jdbcType="CHAR" />
+    <result column="nick" property="nick" jdbcType="VARCHAR" />
+  </resultMap>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="weiboautoman.timer.dataobject.UsersWeibo" >
     select id, user_id, weibo_id, weibo_email, token, token_secret, weibo_type, nick, location,
       head, introduction
     from users_weibo
     where id = #id:BIGINT#
+  </select>
+  <select id="selectByPrimaryKeySmall" resultMap="SmallResultMap" parameterClass="weiboautoman.timer.dataobject.UsersWeibo" >
+    select id, user_id, weibo_id, weibo_email, token, token_secret, weibo_type, nick
+    from users_weibo
+    where user_id = #userId:BIGINT# and weibo_id = #weiboId:VARCHAR#
   </select>
   <delete id="deleteByPrimaryKey" parameterClass="weiboautoman.timer.dataobject.UsersWeibo" >
     delete from users_weibo

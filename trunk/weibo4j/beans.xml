@@ -58,7 +58,7 @@
 				<ref bean="sendWeiboMsgJobTrigger" />
 			</list>
 		</property>
-		<property name="autoStartup" value="false" />
+		<property name="autoStartup" value="true" />
 	</bean>
 	<bean id="sendWeiboMsgJob" class="weiboautoman.timer.job.SendWeiboMsgJob">
 		<property name="weiboSenderThread">
@@ -74,13 +74,16 @@
 			<value>D:/image/</value>
 		</property>
 		<property name="weiboSender">
-			<list>
-				<bean class="weiboautoman.timer.job.sender.SinaWeiboSender"></bean>
-				<bean class="weiboautoman.timer.job.sender.QQWeiboSender"></bean>
-			</list>
+			<map>
+				<entry key="S">
+					<bean class="weiboautoman.timer.job.sender.SinaWeiboSender"></bean>
+				</entry>
+				<entry key="Q">
+					<bean class="weiboautoman.timer.job.sender.QQWeiboSender"></bean>
+				</entry>
+			</map>
 		</property>
-	</bean>
-
+	</bean>	
 	<!--BOÅäÖÃ£¨¿ªÊ¼£© -->
 	<bean id="usersTimeMsgBO" class="weiboautoman.timer.bo.UsersTimeMsgBO"></bean>
 	<!--BOÅäÖÃ£¨½áÊø£© -->

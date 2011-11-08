@@ -22,6 +22,12 @@ public class UsersTimeMsgVO {
 
     private String  weiboType;
 
+    private String  sendResult;
+
+    private Long    userWeiboId;
+
+    private String  nick;
+
     public Long getId() {
         return id;
     }
@@ -102,16 +108,41 @@ public class UsersTimeMsgVO {
         this.weiboType = weiboType;
     }
 
+    public String getSendResult() {
+        return sendResult;
+    }
+
+    public void setSendResult(String sendResult) {
+        this.sendResult = sendResult;
+    }
+
+    public Long getUserWeiboId() {
+        return userWeiboId;
+    }
+
+    public void setUserWeiboId(Long userWeiboId) {
+        this.userWeiboId = userWeiboId;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick == null ? null : nick.trim();
+    }
+
     public String toString() {
-        return new StringBuilder("id:" + id)
-                    .append("userId:" + userId)
-                    .append("weiboId:" + weiboId)
-                    .append("msgContent:" + msgContent)
-                    .append("msgPicture:" + msgPicture)
-                    .append("sendTime:" + sendTime)
-                    .append("isSend:" + isSend)
-                    .append("token:" + token)
-                    .append("tokenSecret:" + tokenSecret)
-                    .append("weiboType:" + weiboType).toString();
+        return new StringBuilder("id:" + id).append("userId:" + userId).append("weiboId:" + weiboId).append("msgContent:"
+                                                                                                                    + msgContent).append("msgPicture:"
+                                                                                                                                                 + msgPicture).append("sendTime:"
+                                                                                                                                                                              + sendTime).append("isSend:"
+                                                                                                                                                                                                         + isSend).append("token:"
+                                                                                                                                                                                                                                  + token).append("tokenSecret:"
+                                                                                                                                                                                                                                                          + tokenSecret).append("weiboType:"
+                                                                                                                                                                                                                                                                                        + weiboType).append("userWeiboId:"
+                                                                                                                                                                                                                                                                                                                    + userWeiboId).append("nick:"
+                                                                                                                                                                                                                                                                                                                                                  + nick).append("sendResult:"
+                                                                                                                                                                                                                                                                                                                                                                         + sendResult).toString();
     }
 }
