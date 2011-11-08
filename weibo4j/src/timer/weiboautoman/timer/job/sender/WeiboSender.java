@@ -1,5 +1,6 @@
 package weiboautoman.timer.job.sender;
 
+import weibo4j.Status;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 import weiboautoman.timer.util.StringUtil;
 
@@ -21,7 +22,7 @@ public abstract class WeiboSender {
      * @param msgVO
      * @return 发送结果 成功返回true，失败返回false；另外，如果传入的类型不属于当前微博类型，也返回成功，因为没有发送。
      */
-    public abstract boolean send(UsersTimeMsgVO msgVO);
+    public abstract Status send(UsersTimeMsgVO msgVO);
 
     /**
      * 获取微博的类型，如果没有类型，则返回空字符串

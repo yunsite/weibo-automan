@@ -1,5 +1,6 @@
 package weiboautoman.timer.job.sender;
 
+import weibo4j.Status;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 
 /**
@@ -10,9 +11,9 @@ import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 public class QQWeiboSender extends WeiboSender {
 
     @Override
-    public boolean send(UsersTimeMsgVO msgVO) {
+    public Status send(UsersTimeMsgVO msgVO) {
         // TODO Auto-generated method stub
-        return false;
+        return null;
     }
 
 }

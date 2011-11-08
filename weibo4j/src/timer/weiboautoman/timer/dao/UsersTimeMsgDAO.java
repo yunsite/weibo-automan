@@ -3,7 +3,6 @@ package weiboautoman.timer.dao;
 import java.util.List;
 
 import weiboautoman.timer.dataobject.UsersTimeMsg;
-import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 
 public interface UsersTimeMsgDAO {
 
@@ -26,7 +25,7 @@ public interface UsersTimeMsgDAO {
      * @param pageSize 需要查询的总记录数
      * @return
      */
-    List<UsersTimeMsgVO> selectByUserIdFirstNumberLike(String userIdFirstNumber, long start, int pageSize);
+    List<UsersTimeMsg> selectByUserIdFirstNumberLike(String userIdFirstNumber, long start, int pageSize);
 
     int updateByPrimaryKeySelective(UsersTimeMsg record);
 

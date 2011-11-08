@@ -8,7 +8,6 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dataobject.UsersTimeMsg;
-import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 
 public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements UsersTimeMsgDAO {
 
@@ -41,13 +40,14 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
 
     @Override
     public long selectByUserIdFirstNumberLikeCount(String userIdFirstNumber) {
+        userIdFirstNumber += "%";
         return (Long) getSqlMapClientTemplate().queryForObject("users_time_msg.selectByUserIdFirstNumberLikeCount",
                                                                userIdFirstNumber);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<UsersTimeMsgVO> selectByUserIdFirstNumberLike(String userIdFirstNumber, long start, int pageSize) {
+    public List<UsersTimeMsg> selectByUserIdFirstNumberLike(String userIdFirstNumber, long start, int pageSize) {
         userIdFirstNumber += "%";
         Map param = new HashMap();
         param.put("userIdFirstNumber", userIdFirstNumber);

@@ -1,7 +1,9 @@
 package weiboautoman.timer.bo;
 
+import weiboautoman.timer.core.SendStatusEnum;
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dataobject.UsersTimeMsg;
+import weiboautoman.timer.util.StringUtil;
 
 public class UsersTimeMsgBO {
 
@@ -12,10 +14,14 @@ public class UsersTimeMsgBO {
      * 
      * @param id
      */
-    public void updateUserTimeMsgSendStatus(long id) {
+    public void updateUserTimeMsgSendStatusAndResult(long id, String sendResult) {
         UsersTimeMsg msg = new UsersTimeMsg();
         msg.setId(id);
-        msg.setIsSend("Y");
+        msg.setIsSend(SendStatusEnum.SEND_SUCCESS.getValue());
+        if (!StringUtil.isNull(sendResult)) {/* 有发送失败的 */
+            msg.setIsSend(SendStatusEnum.SEND_ERROR.getValue());
+            msg.setSendResult(sendResult);
+        }
         usersTimeMsgDAO.updateByPrimaryKeySelective(msg);
     }
 
