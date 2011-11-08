@@ -1,19 +1,24 @@
 package weiboautoman.timer.dataobject;
 
 public class UsersTimeMsg {
-    private Long id;
 
-    private Long userId;
+    private Long    id;
 
-    private String weiboId;
+    private Long    userId;
 
-    private String msgContent;
+    private String  weiboId;
 
-    private String msgPicture;
+    private String  msgContent;
+
+    private String  msgPicture;
 
     private Integer sendTime;
 
-    private String isSend;
+    private String  isSend;
+
+    private String  sendResult;
+
+    private long    msgId;
 
     public Long getId() {
         return id;
@@ -70,4 +75,21 @@ public class UsersTimeMsg {
     public void setIsSend(String isSend) {
         this.isSend = isSend == null ? null : isSend.trim();
     }
+
+    public String getSendResult() {
+        return sendResult;
+    }
+
+    public void setSendResult(String sendResult) {
+        this.sendResult = sendResult;
+    }
+
+    public long getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(long msgId) {
+        this.msgId = msgId;
+    }
+
 }
