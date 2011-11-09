@@ -71,7 +71,7 @@
 	<bean id="weiboSenderThread" class="weiboautoman.timer.job.WeiboSenderThread">
 		<!-- 存放图片的路径前缀 -->
 		<property name="imagePath">
-			<value>D:/image/</value>
+			<value>/usr/fenglibin/images/weibotest/</value>
 		</property>
 		<property name="weiboSender">
 			<map>

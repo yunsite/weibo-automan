@@ -53,7 +53,7 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
         param.put("userIdFirstNumber", userIdFirstNumber);
         param.put("start", start);
         param.put("pageSize", pageSize);
-        return getSqlMapClientTemplate().queryForList("users_time_msg.selectByUserIdFirstNumberLike", userIdFirstNumber);
+        return getSqlMapClientTemplate().queryForList("users_time_msg.selectByUserIdFirstNumberLike", param);
     }
 
     public int updateByPrimaryKeySelective(UsersTimeMsg record) {

@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 
-import weibo4j.Status;
 import weibo4j.WeiboException;
 import weiboautoman.timer.bo.UsersTimeMsgBO;
 import weiboautoman.timer.core.Constants;
+import weiboautoman.timer.core.SendResult;
 import weiboautoman.timer.core.SendStatusEnum;
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dao.UsersWeiboDAO;
@@ -37,7 +37,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
     private UsersTimeMsgBO           usersTimeMsgBO;
     private UsersWeiboDAO            usersWeiboDAO;
     private String                   imagePath;
-    private Map<String, WeiboSender> weiboSenderMap;
+    private Map<String, WeiboSender> weiboSender;
 
     @Override
     public void run() {
@@ -55,6 +55,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                 for (UsersTimeMsg msgDO : timeWeiboList) {
                     /* 待发送的Weibo类型 */
                     TimeMsgWeiboIdJsonBean weiboIdJsonBean = getWeiboIdJsonBean(msgDO.getWeiboId());
+                    weiboIdJsonBean.setResult(true);
                     /* 已经发送失败的微博类型 */
                     TimeMsgWeiboIdJsonBean errSendWeiboIdJsonBean = null;
                     /*
@@ -87,6 +88,9 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                         String sendResultText = null;
                         if (!weiboIdJsonBean.isResult()) {/* 有发送失败的 */
                             sendResultText = JSONObject.toJSONString(weiboIdJsonBean);
+                            if (sendResultText.length() > Constants.MAX_ERROR_MESSAGE_LENGTH) {
+                                sendResultText = sendResultText.substring(0, Constants.MAX_ERROR_MESSAGE_LENGTH);
+                            }
                             if (log.isWarnEnabled()) {
                                 log.warn("users_time_msg id::" + msgDO.getId() + ",user_id:" + msgDO.getUserId()
                                          + " send weibo cause " + " some error. the error sendResult:" + sendResultText);
@@ -133,19 +137,20 @@ public class WeiboSenderThread implements Runnable, Cloneable {
      * @throws WeiboException
      */
     private void doSend(TimeMsgWeiboIdJsonBean weiboIdJsonBean, UsersTimeMsgVO msgVO) throws WeiboException {
-        WeiboSender sender = weiboSenderMap.get(msgVO.getWeiboType().toUpperCase());
+        WeiboSender sender = weiboSender.get(msgVO.getWeiboType().toUpperCase());
         if (sender == null) {
             if (log.isWarnEnabled()) {
                 log.warn("can not get WeiboSender by weibo type:" + msgVO.getWeiboType());
             }
         }
-        Status status = sender.send(msgVO);
-        if (status != null && !status.equals(Boolean.TRUE)) {/* 没有发送成功 */
+        sender.setImagePath(imagePath);
+        SendResult result = sender.send(msgVO);
+        if (result != null && !result.isSuccess()) {/* 没有发送成功 */
             weiboIdJsonBean.setResult(Boolean.FALSE);
             for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {// 保留当前发送的错误信息
                 if (timeMsgWeiboId.getUwid() == msgVO.getUserWeiboId()) {
                     timeMsgWeiboId.setNick(msgVO.getNick());
-                    timeMsgWeiboId.setReason(status.getText());
+                    timeMsgWeiboId.setReason(result.getReason());
                     break;
                 }
             }
@@ -157,6 +162,8 @@ public class WeiboSenderThread implements Runnable, Cloneable {
         thread.usersTimeMsgBO = usersTimeMsgBO;
         thread.usersTimeMsgDAO = usersTimeMsgDAO;
         thread.imagePath = imagePath;
+        thread.weiboSender = weiboSender;
+        thread.usersWeiboDAO = usersWeiboDAO;
         return thread;
     }
 
@@ -168,7 +175,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
      */
     private TimeMsgWeiboIdJsonBean getWeiboIdJsonBean(String jsonString) {
         if (!StringUtil.isNull(jsonString)) {
-            JSONObject.parseObject(jsonString, TimeMsgWeiboIdJsonBean.class);
+            return JSONObject.parseObject(jsonString, TimeMsgWeiboIdJsonBean.class);
         }
         return null;
     }
@@ -205,8 +212,8 @@ public class WeiboSenderThread implements Runnable, Cloneable {
         this.imagePath = imagePath;
     }
 
-    public void setWeiboSenderMap(Map<String, WeiboSender> weiboSenderMap) {
-        this.weiboSenderMap = weiboSenderMap;
+    public void setWeiboSender(Map<String, WeiboSender> weiboSender) {
+        this.weiboSender = weiboSender;
     }
 
     public void setUsersWeiboDAO(UsersWeiboDAO usersWeiboDAO) {

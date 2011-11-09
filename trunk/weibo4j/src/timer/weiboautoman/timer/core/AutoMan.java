@@ -24,7 +24,7 @@ public class AutoMan {
         if (log.isDebugEnabled()) {
             log.debug("finish init spring application context:" + new Date());
         }
-        log.warn("Server Started:" + new Date());
+        log.debug("Server Started:" + new Date());
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override

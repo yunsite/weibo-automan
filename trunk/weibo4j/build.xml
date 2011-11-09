@@ -19,7 +19,7 @@
 		<property name="package" value="weiboautoman.timer" />
 		<property name="lib.dir" value="${basedir}/lib" />
 		<property name="automan.dir" value="." />
-		<property name="src.dir" value="${basedir}/timer" />
+		<property name="src.dir" value="${basedir}/src" />
 		<property name="build.classes" value="${basedir}/bin" />
 
 		<!-- lib.class.path  -->
@@ -58,13 +58,13 @@
 	<!-- Compile after all the prepare work                                  -->
 	<!-- =================================================================== -->
 	<target name="compile" depends="init">
-		<javac srcdir="${src.dir}" destdir="${build.classes}" classpathref="lib.class.path" encoding="GBK" debug="${java-debug}" includes="(weiboautoman/timer/**/*.java)|(weibo4j/**/*.java)" />
+		<javac srcdir="${src.dir}" destdir="${build.classes}" classpathref="lib.class.path" encoding="GBK" debug="${java-debug}" includes="(weiboautoman/**/*.java)|(weibo4j/**/*.java)" />
 	</target>
 
 	<target name="jar" depends="compile">
 		<mkdir dir="${automan.dir}" />
 		<jar jarfile="${automan.dir}/WeiboAutoman.jar">
-			<fileset dir="${build.classes}" includes="weiboautoman/timer/**" />
+			<fileset dir="${build.classes}" includes="weiboautoman/**" />
 			<fileset dir="${build.classes}" includes="weibo4j/**" />
 			<fileset dir="${build.classes}" includes="log4j.xml" />
 			<manifest>
