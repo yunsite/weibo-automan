@@ -161,4 +161,39 @@ public class FileUtil {
         fr.close();
         return cList;
     }
+
+    /**
+     * 返回文件的扩展名，如果没有扩展名的，则返回空字符串""
+     * 
+     * @param filename
+     * @return
+     */
+    public static String getFileExtensation(String filename) {
+        String extName = "";
+        String[] nameArray = filename.split("\\.");
+        if (nameArray.length <= 1) {
+            return extName;
+        }
+        extName = nameArray[nameArray.length - 1];
+        return extName;
+    }
+
+    /**
+     * 根据传入的文件名，确定是否常用的图片文件：jpg、png、gif、bmp，是则返回true，否则返回false
+     * 
+     * @param fileName
+     * @return
+     */
+    public static boolean isImageUsualFile(String fileName) {
+        boolean is = Boolean.FALSE;
+        String extName = getFileExtensation(fileName);
+        if (!StringUtil.isNull(extName)) {
+            extName = extName.toLowerCase();
+            if (extName.equals("jpg") || extName.equals("png") || extName.equals("gif") || extName.equals("bmp")) {
+                is = Boolean.TRUE;
+            }
+        }
+        return is;
+
+    }
 }

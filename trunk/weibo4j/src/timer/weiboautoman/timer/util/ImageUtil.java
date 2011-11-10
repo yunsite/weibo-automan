@@ -1,7 +1,10 @@
 package weiboautoman.timer.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,5 +61,40 @@ public class ImageUtil {
             }
         }
         return bt;
+    }
+
+    /**
+     * 将图片保存到本地，并返回图片保存后的绝对路径
+     * 
+     * @param imagePath 图片保存的前缀路径
+     * @param imageUrl 图片的网络地址
+     * @return
+     */
+    public static String saveImage(String imagePath, String imageUrl) {
+        String tempUrlImageDir = "tempUrlImageDir";
+        String date = DateUtil.getNow("yyyy-MM-dd");
+        /* 将图片URL中的中文编码进行还原 */
+        try {
+            imageUrl = URLDecoder.decode(imageUrl, "GBK");
+        } catch (UnsupportedEncodingException e) {
+        }
+        /* 获取文件名，没有路径 */
+        String imageName = FileUtil.getFileName(imageUrl);
+        /* 是否常用图片文件格式检查 */
+        if (!FileUtil.isImageUsualFile(imageName)) {
+            return null;
+        }
+        // 将文件重新命名
+        imageName = String.valueOf(System.currentTimeMillis()).concat(String.valueOf(NumberUtil.getRandomInt())) + "."
+                    + FileUtil.getFileExtensation(imageName);
+        String imageSaveLocation = imagePath + tempUrlImageDir + File.separator + date + File.separator;
+        File descDir = new File(imageSaveLocation);
+        if (!descDir.exists()) {
+            descDir.mkdirs();
+        }
+        /* 将获取到的内容以文件的形式写到本地 */
+        /* 获取远程文件到本地指定目录并保存，如果因为某张图片处理错误，那忽略该错误 */
+        FileUtil.downloadFileByUrl(imageUrl, imageSaveLocation, imageName);
+        return imageSaveLocation + imageName;
     }
 }

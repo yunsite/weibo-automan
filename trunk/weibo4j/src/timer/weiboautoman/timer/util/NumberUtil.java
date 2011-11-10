@@ -25,4 +25,13 @@ public class NumberUtil {
         }
         return Boolean.TRUE;
     }
+
+    /**
+     * 获取1-1000以内的随机数
+     * 
+     * @return
+     */
+    public static int getRandomInt() {
+        return (int) (Math.random() * 1000);
+    }
 }

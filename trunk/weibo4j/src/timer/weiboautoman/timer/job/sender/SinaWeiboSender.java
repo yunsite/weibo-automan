@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import weibo4j.Status;
 import weibo4j.Weibo;
 import weibo4j.WeiboException;
-import weibo4j.http.ImageItem;
 import weiboautoman.timer.core.Constants;
 import weiboautoman.timer.core.SendResult;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
@@ -40,21 +39,27 @@ public class SinaWeiboSender extends WeiboSender {
             weibo.setToken(msgVO.getToken(), msgVO.getTokenSecret());
 
             if (!StringUtil.isNull(msgVO.getMsgPicture())) {// 带图片的微博
+                String localImage = null;
                 if (msgVO.getMsgPicture().startsWith("http")) {// 网络图片
-                    ImageItem imageItem = ImageUtil.readImageItem(msgVO.getMsgPicture());
-                    status = weibo.uploadStatus(msgVO.getMsgContent(), imageItem);
+                    localImage = ImageUtil.saveImage(getImagePath(), msgVO.getMsgPicture());
                 } else {
-                    status = weibo.uploadStatus(msgVO.getMsgContent(), new File(getImagePath() + msgVO.getMsgPicture()));
-
+                    localImage = getImagePath() + msgVO.getMsgPicture();
+                }
+                if (StringUtil.isNull(localImage)) {
+                    result.setReason("发送微博失败,将网络图片存到本地发生异常,网络图片地址:" + msgVO.getMsgPicture());
+                } else {
+                    status = weibo.uploadStatus(msgVO.getMsgContent(), new File(localImage));
                 }
             } else {
                 status = weibo.updateStatus(msgVO.getMsgContent());
             }
-            if (status.getResponse().getStatusCode() == Constants.HTTP_OK_RESPONSE
-                || status.getResponse().getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE) {
-                result.setSuccess(Boolean.TRUE);
-            } else {
-                result.setReason("发送微博失败,返回状态码:" + status.getResponse().getStatusCode());
+            if (status != null) {
+                if (status.getResponse().getStatusCode() == Constants.HTTP_OK_RESPONSE
+                    || status.getResponse().getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE) {
+                    result.setSuccess(Boolean.TRUE);
+                } else {
+                    result.setReason("发送微博失败,返回状态码:" + status.getResponse().getStatusCode());
+                }
             }
         } catch (WeiboException e) {
             if (log.isErrorEnabled()) {

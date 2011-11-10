@@ -17,10 +17,12 @@ public class UsersTimeMsgBO {
     public void updateUserTimeMsgSendStatusAndResult(long id, String sendResult) {
         UsersTimeMsg msg = new UsersTimeMsg();
         msg.setId(id);
-        msg.setIsSend(SendStatusEnum.SEND_SUCCESS.getValue());
         if (!StringUtil.isNull(sendResult)) {/* 有发送失败的 */
             msg.setIsSend(SendStatusEnum.SEND_ERROR.getValue());
             msg.setSendResult(sendResult);
+        } else {
+            msg.setIsSend(SendStatusEnum.SEND_SUCCESS.getValue());
+            msg.setSendResult("");
         }
         usersTimeMsgDAO.updateByPrimaryKeySelective(msg);
     }
