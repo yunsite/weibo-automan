@@ -39,18 +39,23 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
     }
 
     @Override
-    public long selectByUserIdFirstNumberLikeCount(String userIdFirstNumber) {
+    public long selectByUserIdFirstNumberLikeCount(String userIdFirstNumber, String sendType) {
         userIdFirstNumber += "%";
+        Map param = new HashMap();
+        param.put("userIdFirstNumber", userIdFirstNumber);
+        param.put("sendType", sendType);
         return (Long) getSqlMapClientTemplate().queryForObject("users_time_msg.selectByUserIdFirstNumberLikeCount",
-                                                               userIdFirstNumber);
+                                                               param);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<UsersTimeMsg> selectByUserIdFirstNumberLike(String userIdFirstNumber, long start, int pageSize) {
+    public List<UsersTimeMsg> selectByUserIdFirstNumberLike(String userIdFirstNumber, String sendType, long start,
+                                                            int pageSize) {
         userIdFirstNumber += "%";
         Map param = new HashMap();
         param.put("userIdFirstNumber", userIdFirstNumber);
+        param.put("sendType", sendType);
         param.put("start", start);
         param.put("pageSize", pageSize);
         return getSqlMapClientTemplate().queryForList("users_time_msg.selectByUserIdFirstNumberLike", param);

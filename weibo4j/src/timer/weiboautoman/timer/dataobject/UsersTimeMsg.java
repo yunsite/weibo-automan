@@ -20,6 +20,8 @@ public class UsersTimeMsg {
 
     private long    msgId;
 
+    private String  sendType;
+
     public Long getId() {
         return id;
     }
@@ -90,6 +92,14 @@ public class UsersTimeMsg {
 
     public void setMsgId(long msgId) {
         this.msgId = msgId;
+    }
+
+    public String getSendType() {
+        return sendType;
+    }
+
+    public void setSendType(String sendType) {
+        this.sendType = sendType;
     }
 
 }

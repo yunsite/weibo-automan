@@ -30,8 +30,7 @@ public class QQWeiboSender extends WeiboSender {
         // // String response=tAPI.addt(oauth, WeiBoConst.ResultType.ResultType_Json, "104502055372919");
         // Private_API private_API = new Private_API();
         //
-        // String response = private_API.add(oauth, WeiBoConst.ResultType.ResultType_Json, "hello", "127.0.0.1", "",
-        // "", "tom");
+        // String response = private_API.add(oauth, WeiBoConst.ResultType.ResultType_Json, "hello", "127.0.0.1","tom");
         // System.out.println("response:" + response);
         //
         // } catch (Exception e) {

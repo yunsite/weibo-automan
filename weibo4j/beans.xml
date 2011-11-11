@@ -39,6 +39,12 @@
 	<!--DAO配置（结束） -->
 
 	<!--定时器任务配置（开始） -->
+	<!-- 配置发送定时微博的任务（开始） -->
+	<bean id="sendWeiboMsgJob" class="weiboautoman.timer.job.SendWeiboMsgJob">
+		<property name="weiboSenderThread">
+			<ref local="weiboSenderThread"></ref>
+		</property>
+	</bean>
 	<bean id="scheduledSendWeiboMsgJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
 		<property name="targetObject" ref="sendWeiboMsgJob" />
@@ -50,21 +56,37 @@
 		<!-- 每1分钟执行一次 -->
 		<property name="repeatInterval" value="60000" />
 	</bean>
+	<!-- 配置发送定时微博的任务（结束） -->
+	
+	<!-- 配置立即发送微博的任务（开始） -->
+	<bean id="sendWeiboMsgImmediateJob" class="weiboautoman.timer.job.SendWeiboMsgImmediateJob">
+		<property name="weiboSenderThread">
+			<ref local="weiboSenderThread"></ref>
+		</property>
+	</bean>
+	<bean id="scheduledSendWeiboMsgImmediateJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="sendWeiboMsgImmediateJob" />
+		<property name="targetMethod" value="execute" />
+	</bean>
+	<bean id="sendWeiboMsgImmediateJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="scheduledSendWeiboMsgImmediateJob" />
+		<property name="startDelay" value="10000" />
+		<!-- 每10秒钟执行一次 -->
+		<property name="repeatInterval" value="10000" />
+	</bean>
+	<!-- 配置立即发送微博的任务（结束） -->
 	<bean id="schedulerFactory"
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
 		autowire="no">
 		<property name="triggers">
 			<list>
 				<ref bean="sendWeiboMsgJobTrigger" />
+				<ref bean="sendWeiboMsgImmediateJobTrigger" />
 			</list>
 		</property>
 		<property name="autoStartup" value="true" />
-	</bean>
-	<bean id="sendWeiboMsgJob" class="weiboautoman.timer.job.SendWeiboMsgJob">
-		<property name="weiboSenderThread">
-			<ref local="weiboSenderThread"></ref>
-		</property>
-	</bean>
+	</bean>	
 	<!--定时器任务配置（结束） -->
 
 	<!--发送微博的线程 -->

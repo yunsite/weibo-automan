@@ -31,17 +31,20 @@ import weiboautoman.timer.util.StringUtil;
  */
 public class WeiboSenderThread implements Runnable, Cloneable {
 
-    private static Logger            log = LoggerFactory.getLogger(WeiboSenderThread.class);
+    private static Logger            log      = LoggerFactory.getLogger(WeiboSenderThread.class);
     int                              userIdFirstNumber;
     private UsersTimeMsgDAO          usersTimeMsgDAO;
     private UsersTimeMsgBO           usersTimeMsgBO;
     private UsersWeiboDAO            usersWeiboDAO;
     private String                   imagePath;
     private Map<String, WeiboSender> weiboSender;
+    /* 默认获取定时发送的微博 */
+    private String                   sendType = "N";
 
     @Override
     public void run() {
-        long totalCount = usersTimeMsgDAO.selectByUserIdFirstNumberLikeCount(String.valueOf(userIdFirstNumber));
+        long totalCount = usersTimeMsgDAO.selectByUserIdFirstNumberLikeCount(String.valueOf(userIdFirstNumber),
+                                                                             sendType);
         long pages = NumberUtil.getPages(totalCount, Constants.DEFAULT_PAGE_SIZE);
         if (log.isDebugEnabled()) {
             log.debug("userIdFirstNumber:" + userIdFirstNumber + " get totalCount:" + totalCount + " ,pages:" + pages);
@@ -49,6 +52,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
         for (long currentPage = 1; currentPage <= pages; currentPage++) {
             long start = (currentPage - 1) * Constants.DEFAULT_PAGE_SIZE;
             List<UsersTimeMsg> timeWeiboList = usersTimeMsgDAO.selectByUserIdFirstNumberLike(String.valueOf(userIdFirstNumber),
+                                                                                             sendType,
                                                                                              start,
                                                                                              Constants.DEFAULT_PAGE_SIZE);
             if (timeWeiboList != null && timeWeiboList.size() > 0) {
@@ -164,6 +168,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
         thread.imagePath = imagePath;
         thread.weiboSender = weiboSender;
         thread.usersWeiboDAO = usersWeiboDAO;
+        thread.sendType = sendType;
         return thread;
     }
 
@@ -218,6 +223,10 @@ public class WeiboSenderThread implements Runnable, Cloneable {
 
     public void setUsersWeiboDAO(UsersWeiboDAO usersWeiboDAO) {
         this.usersWeiboDAO = usersWeiboDAO;
+    }
+
+    public void setSendType(String sendType) {
+        this.sendType = sendType;
     }
 
     public static void main(String[] args) {
