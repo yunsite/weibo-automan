@@ -54,8 +54,10 @@ public class SinaWeiboSender extends WeiboSender {
                 status = weibo.updateStatus(msgVO.getMsgContent());
             }
             if (status != null) {
-                if (status.getResponse().getStatusCode() == Constants.HTTP_OK_RESPONSE
-                    || status.getResponse().getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE) {
+                if (status.getResponse().getStatusCode() == Constants.HTTP_OK_RESPONSE) {
+                    result.setSuccess(Boolean.TRUE);
+                } else if (status.getResponse().getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE
+                           && status.getResponse().getResponseAsString().indexOf("40028:不要太贪心哦！你已经发过一次啦") > 0) {
                     result.setSuccess(Boolean.TRUE);
                 } else {
                     result.setReason("发送微博失败,返回状态码:" + status.getResponse().getStatusCode());
@@ -65,7 +67,8 @@ public class SinaWeiboSender extends WeiboSender {
             if (log.isErrorEnabled()) {
                 log.error("发送微博失败1：" + e.getMessage(), e);
             }
-            if (e.getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE) {
+            if (e.getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE
+                && e.getMessage().indexOf("repeated weibo text") > 0) {
                 result.setSuccess(Boolean.TRUE);
             } else {
                 result.setReason("发送微博失败发生异常,错误码:" + e.getStatusCode() + ",错误信息" + e.getMessage());
