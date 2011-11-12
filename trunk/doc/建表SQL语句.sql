@@ -25,7 +25,7 @@ CREATE TABLE `msg` (
   `type_id` int(10) unsigned NOT NULL COMMENT '类型id',
   `picture` varchar(100) DEFAULT NULL COMMENT '配图的url',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 -- ----------------------------
 -- Table structure for `msg_type`
@@ -36,7 +36,7 @@ CREATE TABLE `msg_type` (
   `name` varchar(50) NOT NULL COMMENT '分类名称',
   `sortno` int(11) NOT NULL COMMENT '排序序号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 -- ----------------------------
 -- Records of msg_type
@@ -72,7 +72,7 @@ CREATE TABLE `reset_password` (
   `User_id` bigint(20) NOT NULL,
   `CreateDate` datetime NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 -- ----------------------------
 -- Records of reset_password
@@ -95,7 +95,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   KEY `users_name` (`name`),
   KEY `users_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 
 -- ----------------------------
@@ -109,7 +109,7 @@ CREATE TABLE `users_send_msg` (
   `send_date` datetime NOT NULL COMMENT '发送的时间',
   PRIMARY KEY (`id`),
   KEY `users_send_msg_user_id_msg_id` (`user_id`,`msg_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 
 
@@ -132,7 +132,7 @@ CREATE TABLE `users_time_msg` (
   KEY `users_time_msg_weibo_id_send_time_is_send` (`weibo_id`(255),`send_time`,`is_send`),
   KEY `users_time_msg_user_id_send_time_is_send` (`user_id`,`send_time`,`is_send`),
   KEY `users_time_msg_user_id_weibo_id_send_time_is_send` (`user_id`,`weibo_id`(255),`send_time`,`is_send`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 
 
@@ -157,5 +157,5 @@ CREATE TABLE `users_weibo` (
   KEY `users_weibo_user_id_weibo_id` (`user_id`,`weibo_id`),
   KEY `users_weibo_weibo_id_weibo_type` (`weibo_id`,`weibo_type`),
   KEY `users_weibo_token_token_secret` (`token`,`token_secret`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
