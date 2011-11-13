@@ -42,72 +42,85 @@ public class WeiboSenderThread implements Runnable, Cloneable {
 
     @Override
     public void run() {
-        long totalCount = usersTimeMsgDAO.selectByUserIdFirstNumberLikeCount(String.valueOf(userIdFirstNumber),
-                                                                             sendType);
-        long pages = NumberUtil.getPages(totalCount, Constants.DEFAULT_PAGE_SIZE);
-        if (log.isDebugEnabled()) {
-            log.debug("userIdFirstNumber:" + userIdFirstNumber + " get totalCount:" + totalCount + " ,pages:" + pages);
-        }
-        for (long currentPage = 1; currentPage <= pages; currentPage++) {
-            long start = (currentPage - 1) * Constants.DEFAULT_PAGE_SIZE;
-            List<UsersTimeMsg> timeWeiboList = usersTimeMsgDAO.selectByUserIdFirstNumberLike(String.valueOf(userIdFirstNumber),
-                                                                                             sendType,
-                                                                                             start,
-                                                                                             Constants.DEFAULT_PAGE_SIZE);
-            if (timeWeiboList != null && timeWeiboList.size() > 0) {
-                for (UsersTimeMsg msgDO : timeWeiboList) {
-                    /* 待发送的Weibo类型 */
-                    TimeMsgWeiboIdJsonBean weiboIdJsonBean = getWeiboIdJsonBean(msgDO.getWeiboId());
-                    weiboIdJsonBean.setResult(true);
-                    /* 已经发送失败的微博类型 */
-                    TimeMsgWeiboIdJsonBean errSendWeiboIdJsonBean = null;
-                    /*
-                     * 当前消息是否已经发送，Y表示已经发送(且发送成功)，N表示未发送，E表示发送时有错误，默认值为N.
-                     * 此处发送消息时,需要判断is_send,如果为N,则全部微博类型直接发送即可,如果为E,则需要从SEND_RESULT字段中读取是哪些微博发送失败了, 只需要发送原来发送失败的记录即可.
-                     */
-                    errSendWeiboIdJsonBean = getWeiboIdJsonBean(msgDO.getSendResult());
-                    if (weiboIdJsonBean != null && weiboIdJsonBean.getTimeMsgWeiboId().length > 0) {
-                        for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {
-                            UsersWeiboVO usersWeiboVO = usersWeiboDAO.selectByPrimaryKeySmall(timeMsgWeiboId.getUwid());
-                            /* 如果用户已经取消息了该微博的绑定，则不发送了 */
-                            if (usersWeiboVO == null) {
-                                continue;
+        try {
+            long totalCount = usersTimeMsgDAO.selectByUserIdFirstNumberLikeCount(String.valueOf(userIdFirstNumber),
+                                                                                 sendType);
+            long pages = NumberUtil.getPages(totalCount, Constants.DEFAULT_PAGE_SIZE);
+            if (log.isDebugEnabled()) {
+                log.debug("userIdFirstNumber:" + userIdFirstNumber + " get totalCount:" + totalCount + " ,pages:"
+                          + pages);
+            }
+            for (long currentPage = 1; currentPage <= pages; currentPage++) {
+                long start = (currentPage - 1) * Constants.DEFAULT_PAGE_SIZE;
+                List<UsersTimeMsg> timeWeiboList = usersTimeMsgDAO.selectByUserIdFirstNumberLike(String.valueOf(userIdFirstNumber),
+                                                                                                 sendType,
+                                                                                                 start,
+                                                                                                 Constants.DEFAULT_PAGE_SIZE);
+                if (timeWeiboList != null && timeWeiboList.size() > 0) {
+                    for (UsersTimeMsg msgDO : timeWeiboList) {
+                        /* 待发送的Weibo类型 */
+                        TimeMsgWeiboIdJsonBean weiboIdJsonBean = getWeiboIdJsonBean(msgDO.getWeiboId());
+                        if (weiboIdJsonBean == null) {
+                            if (log.isWarnEnabled()) {
+                                log.warn("根据Json字符串，未能够映射为待发送微博的Java对象：" + msgDO.getWeiboId());
                             }
-                            if (errSendWeiboIdJsonBean != null) {/* 有发送失败的类型 */
-                                /* 检测当前类型是否是发送失败的类型,不是就说明是已经发送成功了的,就不发送,继续找下面的 */
-                                if (!checkIsErrSendType(errSendWeiboIdJsonBean, usersWeiboVO.getId())) {
+                            continue;
+                        }
+                        weiboIdJsonBean.setResult(true);
+                        /* 已经发送失败的微博类型 */
+                        TimeMsgWeiboIdJsonBean errSendWeiboIdJsonBean = null;
+                        /*
+                         * 当前消息是否已经发送，Y表示已经发送(且发送成功)，N表示未发送，E表示发送时有错误，默认值为N.
+                         * 此处发送消息时,需要判断is_send,如果为N,则全部微博类型直接发送即可,如果为E,则需要从SEND_RESULT字段中读取是哪些微博发送失败了, 只需要发送原来发送失败的记录即可.
+                         */
+                        errSendWeiboIdJsonBean = getWeiboIdJsonBean(msgDO.getSendResult());
+                        if (weiboIdJsonBean != null && weiboIdJsonBean.getTimeMsgWeiboId().length > 0) {
+                            for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {
+                                UsersWeiboVO usersWeiboVO = usersWeiboDAO.selectByPrimaryKeySmall(timeMsgWeiboId.getUwid());
+                                /* 如果用户已经取消息了该微博的绑定，则不发送了 */
+                                if (usersWeiboVO == null) {
                                     continue;
                                 }
+                                if (errSendWeiboIdJsonBean != null) {/* 有发送失败的类型 */
+                                    /* 检测当前类型是否是发送失败的类型,不是就说明是已经发送成功了的,就不发送,继续找下面的 */
+                                    if (!checkIsErrSendType(errSendWeiboIdJsonBean, usersWeiboVO.getId())) {
+                                        continue;
+                                    }
+                                }
+                                UsersTimeMsgVO msgVO = new UsersTimeMsgVO();
+                                msgVO.setId(msgDO.getId());
+                                msgVO.setMsgPicture(msgDO.getMsgPicture());
+                                msgVO.setMsgContent(msgDO.getMsgContent());
+                                msgVO.setUserWeiboId(usersWeiboVO.getId());
+                                msgVO.setNick(usersWeiboVO.getNick());
+                                msgVO.setToken(usersWeiboVO.getToken());
+                                msgVO.setTokenSecret(usersWeiboVO.getTokenSecret());
+                                msgVO.setWeiboType(usersWeiboVO.getWeiboType());
+                                sendWeibo(weiboIdJsonBean, msgVO);
                             }
-                            UsersTimeMsgVO msgVO = new UsersTimeMsgVO();
-                            msgVO.setId(msgDO.getId());
-                            msgVO.setMsgPicture(msgDO.getMsgPicture());
-                            msgVO.setMsgContent(msgDO.getMsgContent());
-                            msgVO.setUserWeiboId(usersWeiboVO.getId());
-                            msgVO.setNick(usersWeiboVO.getNick());
-                            msgVO.setToken(usersWeiboVO.getToken());
-                            msgVO.setTokenSecret(usersWeiboVO.getTokenSecret());
-                            msgVO.setWeiboType(usersWeiboVO.getWeiboType());
-                            sendWeibo(weiboIdJsonBean, msgVO);
+                            String sendResultText = null;
+                            if (!weiboIdJsonBean.isResult()) {/* 有发送失败的 */
+                                sendResultText = JSONObject.toJSONString(weiboIdJsonBean);
+                                if (sendResultText.length() > Constants.MAX_ERROR_MESSAGE_LENGTH) {
+                                    sendResultText = sendResultText.substring(0, Constants.MAX_ERROR_MESSAGE_LENGTH);
+                                }
+                                if (log.isWarnEnabled()) {
+                                    log.warn("users_time_msg id::" + msgDO.getId() + ",user_id:" + msgDO.getUserId()
+                                             + " send weibo cause " + " some error. the error sendResult:"
+                                             + sendResultText);
+                                }
+                            }
+                            usersTimeMsgBO.updateUserTimeMsgSendStatusAndResult(msgDO.getId(), sendResultText);
                         }
-                        String sendResultText = null;
-                        if (!weiboIdJsonBean.isResult()) {/* 有发送失败的 */
-                            sendResultText = JSONObject.toJSONString(weiboIdJsonBean);
-                            if (sendResultText.length() > Constants.MAX_ERROR_MESSAGE_LENGTH) {
-                                sendResultText = sendResultText.substring(0, Constants.MAX_ERROR_MESSAGE_LENGTH);
-                            }
-                            if (log.isWarnEnabled()) {
-                                log.warn("users_time_msg id::" + msgDO.getId() + ",user_id:" + msgDO.getUserId()
-                                         + " send weibo cause " + " some error. the error sendResult:" + sendResultText);
-                            }
-                        }
-                        usersTimeMsgBO.updateUserTimeMsgSendStatusAndResult(msgDO.getId(), sendResultText);
-                    }
 
+                    }
                 }
             }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("发送微博发生异常：" + e.getMessage(), e);
+            }
         }
-
     }
 
     /**
@@ -187,8 +200,14 @@ public class WeiboSenderThread implements Runnable, Cloneable {
      * @return
      */
     private TimeMsgWeiboIdJsonBean getWeiboIdJsonBean(String jsonString) {
-        if (!StringUtil.isNull(jsonString)) {
-            return JSONObject.parseObject(jsonString, TimeMsgWeiboIdJsonBean.class);
+        try {
+            if (!StringUtil.isNull(jsonString)) {
+                return JSONObject.parseObject(jsonString, TimeMsgWeiboIdJsonBean.class);
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("将Json串转换为待发送的微博对象时发生异常，微博内容：" + jsonString + ". \n异常原因：" + e.getMessage(), e);
+            }
         }
         return null;
     }

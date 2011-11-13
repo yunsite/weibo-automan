@@ -8,7 +8,7 @@ package weiboautoman.timer.core;
 public class SendResult {
 
     boolean success;
-    String  reason;
+    String  reason = "";
 
     public boolean isSuccess() {
         return success;
