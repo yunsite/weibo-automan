@@ -12,7 +12,6 @@ import weibo4j.WeiboException;
 import weiboautoman.timer.bo.UsersTimeMsgBO;
 import weiboautoman.timer.core.Constants;
 import weiboautoman.timer.core.SendResult;
-import weiboautoman.timer.core.SendStatusEnum;
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dao.UsersWeiboDAO;
 import weiboautoman.timer.dataobject.UsersTimeMsg;
@@ -66,9 +65,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                      * 当前消息是否已经发送，Y表示已经发送(且发送成功)，N表示未发送，E表示发送时有错误，默认值为N.
                      * 此处发送消息时,需要判断is_send,如果为N,则全部微博类型直接发送即可,如果为E,则需要从SEND_RESULT字段中读取是哪些微博发送失败了, 只需要发送原来发送失败的记录即可.
                      */
-                    if (SendStatusEnum.SEND_ERROR.getValue().equalsIgnoreCase(msgDO.getIsSend())) {
-                        errSendWeiboIdJsonBean = getWeiboIdJsonBean(msgDO.getSendResult());
-                    }
+                    errSendWeiboIdJsonBean = getWeiboIdJsonBean(msgDO.getSendResult());
                     if (weiboIdJsonBean != null && weiboIdJsonBean.getTimeMsgWeiboId().length > 0) {
                         for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {
                             UsersWeiboVO usersWeiboVO = usersWeiboDAO.selectByPrimaryKeySmall(timeMsgWeiboId.getUwid());

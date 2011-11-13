@@ -22,14 +22,14 @@
   <select id="selectByUserIdFirstNumberLikeCount" parameterClass="java.util.Map" resultClass="java.lang.Long">
   	select count(*) 
   		from users_time_msg 
-  		where upper(is_send)!='Y' and unix_timestamp(now())>=send_time
+  		where upper(is_send)='N' and unix_timestamp(now())>=send_time
   			and user_id like #userIdFirstNumber# and send_type = #sendType#
   </select>
   <!--翻页查询记录-->
   <select id="selectByUserIdFirstNumberLike" parameterClass="java.util.Map" resultMap="BaseResultMap">
   	select id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send, send_result, msg_id, send_type
     from users_time_msg
-  	where upper(is_send)!='Y' and unix_timestamp(now())>=send_time
+  	where upper(is_send)='N' and unix_timestamp(now())>=send_time
   		and user_id like #userIdFirstNumber# and send_type = #sendType#
   	limit #start#,#pageSize#
   </select>
