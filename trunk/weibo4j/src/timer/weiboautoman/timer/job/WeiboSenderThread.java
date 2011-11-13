@@ -135,7 +135,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
     }
 
     /**
-     * 执行发送的动作。如果涉及到多个同条消息要发送到多个微博，只要有一种发送成功了，就认为是发送成功了
+     * 执行发送的动作。如果涉及到多个同条消息要发送到多个微博，只要有一个发送失败了，就认为是发送失败了
      * 
      * @param msgVO
      * @return 返回微博发送的结果
@@ -156,6 +156,13 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                 if (timeMsgWeiboId.getUwid() == msgVO.getUserWeiboId()) {
                     timeMsgWeiboId.setNick(msgVO.getNick());
                     timeMsgWeiboId.setReason(result.getReason());
+                    break;
+                }
+            }
+        } else if (result != null && result.isSuccess()) {/* 发送成功 */
+            for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {// 标记发送成功的类型为成功状态
+                if (timeMsgWeiboId.getUwid() == msgVO.getUserWeiboId()) {
+                    timeMsgWeiboId.setResult(true);
                     break;
                 }
             }
@@ -191,11 +198,14 @@ public class WeiboSenderThread implements Runnable, Cloneable {
      * 
      * @param jsonBean
      * @param uwid 用户微博表的主键Id
-     * @return
+     * @return 如果是发送失败的类型返回true，不是则返回false
      */
     private boolean checkIsErrSendType(TimeMsgWeiboIdJsonBean jsonBean, long uwid) {
         for (TimeMsgWeiboId timeMsgWeiboId : jsonBean.getTimeMsgWeiboId()) {
             if (timeMsgWeiboId.getUwid() == uwid) {
+                if (timeMsgWeiboId.isResult()) {// 处理成功了的
+                    return false;
+                }
                 return Boolean.TRUE;
             }
         }
