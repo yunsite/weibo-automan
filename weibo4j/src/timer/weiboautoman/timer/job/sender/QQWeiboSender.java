@@ -50,7 +50,8 @@ public class QQWeiboSender extends WeiboSender {
                     localImage = getImagePath() + msgVO.getMsgPicture();
                 }
                 if (StringUtil.isNull(localImage)) {
-                    result.setReason("发送微博失败,将网络图片存到本地发生异常,网络图片地址:" + msgVO.getMsgPicture());
+                    result.setReason("不会发送图片，只会发送文字内容，因为将网络图片存到本地文件发生异常,网络图片地址:" + msgVO.getMsgPicture());
+                    sendResultMessage = tapi.add(oauth, format, msgVO.getMsgContent(), "127.0.0.1");
                 } else {
                     sendResultMessage = tapi.add_pic(oauth, format, msgVO.getMsgContent(), "127.0.0.1", localImage);
                 }

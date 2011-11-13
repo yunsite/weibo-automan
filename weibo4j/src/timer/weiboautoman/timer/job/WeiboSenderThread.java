@@ -72,6 +72,10 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                     if (weiboIdJsonBean != null && weiboIdJsonBean.getTimeMsgWeiboId().length > 0) {
                         for (TimeMsgWeiboId timeMsgWeiboId : weiboIdJsonBean.getTimeMsgWeiboId()) {
                             UsersWeiboVO usersWeiboVO = usersWeiboDAO.selectByPrimaryKeySmall(timeMsgWeiboId.getUwid());
+                            /* 如果用户已经取消息了该微博的绑定，则不发送了 */
+                            if (usersWeiboVO == null) {
+                                continue;
+                            }
                             if (errSendWeiboIdJsonBean != null) {/* 有发送失败的类型 */
                                 /* 检测当前类型是否是发送失败的类型,不是就说明是已经发送成功了的,就不发送,继续找下面的 */
                                 if (!checkIsErrSendType(errSendWeiboIdJsonBean, usersWeiboVO.getId())) {
