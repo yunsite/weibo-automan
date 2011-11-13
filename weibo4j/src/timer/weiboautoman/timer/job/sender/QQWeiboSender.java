@@ -1,5 +1,7 @@
 package weiboautoman.timer.job.sender;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class QQWeiboSender extends WeiboSender {
     private static final String appSecret     = "19f86df9dcd1bacd2885f10c7dfc3bce";
     private static String       callBackURL   = "null";
     private static String       format        = "json";
+    private static String       clientIp      = "127.0.0.1";
     /** 腾讯微博的标识 */
     private static final String QQ_WEIBO_MARK = "Q";
 
@@ -49,31 +52,38 @@ public class QQWeiboSender extends WeiboSender {
                 } else {
                     localImage = getImagePath() + msgVO.getMsgPicture();
                 }
-                if (StringUtil.isNull(localImage)) {
-                    result.setReason("不会发送图片，只会发送文字内容，因为将网络图片存到本地文件发生异常,网络图片地址:" + msgVO.getMsgPicture());
-                    sendResultMessage = tapi.add(oauth, format, msgVO.getMsgContent(), "127.0.0.1");
+                if (!StringUtil.isNull(localImage) && new File(localImage).exists()) {
+                    sendResultMessage = tapi.add_pic(oauth, format, msgVO.getMsgContent(), clientIp, localImage);
                 } else {
-                    sendResultMessage = tapi.add_pic(oauth, format, msgVO.getMsgContent(), "127.0.0.1", localImage);
+                    result.setReason(result.getReason() + "没有找到图片文件或图片文件处理出错:" + msgVO.getMsgPicture() + ".");
                 }
             } else {
-                sendResultMessage = tapi.add(oauth, format, msgVO.getMsgContent(), "127.0.0.1");
+                sendResultMessage = tapi.add(oauth, format, msgVO.getMsgContent(), clientIp);
             }
-            JSONObject object = JSONObject.parseObject(sendResultMessage);
-            int errcode = object.getInteger("errcode");
-            int ret = object.getInteger("ret");
-            String msg = object.getString("msg");
-            // 返回码的意思参见：http://open.t.qq.com/resource.php?i=2,2
-            if ((errcode == 0 && ret == 0) || (errcode == 13)) {// 13表示重复发表
-                result.setSuccess(true);
-            } else if (errcode == 13) {
-                result.setReason("腾讯微博发送失败发生异常,errcode:" + errcode + ",ret:" + ret + ",原因：" + msg);
+            if (!StringUtil.isNull(sendResultMessage)) {
+                JSONObject object = JSONObject.parseObject(sendResultMessage);
+                int errcode = object.getInteger("errcode");
+                int ret = object.getInteger("ret");
+                String msg = object.getString("msg");
+                // 返回码的意思参见：http://open.t.qq.com/resource.php?i=2,2
+                if ((errcode == 0 && ret == 0) || (errcode == 13)) {// 13表示重复发表
+                    if (errcode == 13) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("当前微博重复发表，默认为按发布成功处理：" + msgVO.getMsgContent());
+                        }
+                    }
+                    result.setSuccess(true);
+                } else if (errcode == 13) {
+                    result.setReason(result.getReason() + "腾讯微博发送失败发生异常,errcode:" + errcode + ",ret:" + ret + ",原因："
+                                     + msg + ".");
+                }
             }
 
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("腾讯发送微博失败：" + e.getMessage(), e);
             }
-            result.setReason("腾讯微博发送失败发生异常,错误信息" + e.getMessage());
+            result.setReason(result.getReason() + "腾讯微博发送失败发生异常,错误信息" + e.getMessage() + ".");
         }
         return result;
     }
