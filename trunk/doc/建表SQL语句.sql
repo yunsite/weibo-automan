@@ -129,9 +129,8 @@ CREATE TABLE `users_time_msg` (
   `msg_id` bigint(20) DEFAULT NULL COMMENT '对应该内容库(表msg)中的主键ID',
   `send_type` char(1) DEFAULT 'N' COMMENT '消息的发送类型：Y：立即发送 N：表示定时发送 默认值为N',
   PRIMARY KEY (`id`),
-  KEY `users_time_msg_weibo_id_send_time_is_send` (`weibo_id`(255),`send_time`,`is_send`),
-  KEY `users_time_msg_user_id_send_time_is_send` (`user_id`,`send_time`,`is_send`),
-  KEY `users_time_msg_user_id_weibo_id_send_time_is_send` (`user_id`,`weibo_id`(255),`send_time`,`is_send`)
+  KEY `users_time_msg_weibo_id_send_time_is_send` (`user_id`,`send_time`,`is_send`,`send_type`),
+  KEY `users_time_msg_user_id_send_time_is_send` (`user_id`,`send_time`,`is_send`)
 ) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 
