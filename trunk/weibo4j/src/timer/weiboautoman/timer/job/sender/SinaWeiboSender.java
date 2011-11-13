@@ -45,11 +45,10 @@ public class SinaWeiboSender extends WeiboSender {
                 } else {
                     localImage = getImagePath() + msgVO.getMsgPicture();
                 }
-                if (StringUtil.isNull(localImage)) {
-                    result.setReason("不会发送图片，只会发送文字内容，因为将网络图片存到本地文件发生异常,网络图片地址:" + msgVO.getMsgPicture());
-                    status = weibo.updateStatus(msgVO.getMsgContent());
-                } else {
+                if (!StringUtil.isNull(localImage) && new File(localImage).exists()) {
                     status = weibo.uploadStatus(msgVO.getMsgContent(), new File(localImage));
+                } else {
+                    result.setReason(result.getReason() + "没有找到图片文件或图片文件处理出错:" + msgVO.getMsgPicture() + ".");
                 }
             } else {
                 status = weibo.updateStatus(msgVO.getMsgContent());
@@ -59,9 +58,13 @@ public class SinaWeiboSender extends WeiboSender {
                     result.setSuccess(Boolean.TRUE);
                 } else if (status.getResponse().getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE
                            && status.getResponse().getResponseAsString().indexOf("40028:不要太贪心哦！你已经发过一次啦") > 0) {
+                    if (log.isWarnEnabled()) {
+                        log.warn("当前微博重复发表，默认为按发布成功处理：" + msgVO.getMsgContent());
+                    }
                     result.setSuccess(Boolean.TRUE);
                 } else {
-                    result.setReason("新浪微博发送失败,返回状态码:" + status.getResponse().getStatusCode());
+                    result.setReason(result.getReason() + "新浪微博发送失败,返回状态码:" + status.getResponse().getStatusCode()
+                                     + ".");
                 }
             }
         } catch (WeiboException e) {
@@ -72,15 +75,18 @@ public class SinaWeiboSender extends WeiboSender {
                 && e.getMessage().indexOf("repeated weibo text") > 0) {
                 result.setSuccess(Boolean.TRUE);
             } else {
-                result.setReason("新浪发送微博失败发生异常,错误码:" + e.getStatusCode() + ",错误信息" + e.getMessage());
+                result.setReason(result.getReason() + "新浪发送微博失败发生异常,错误码:" + e.getStatusCode() + ",错误信息"
+                                 + e.getMessage() + ".");
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("新浪发送微博失败2：" + e.getMessage(), e);
             }
-            result.setReason("新浪发送微博失败发生异常,"
+            result.setReason(result.getReason()
+                             + "新浪发送微博失败发生异常,"
                              + (status != null ? "状态码:" + status.getResponse().getStatusCode() : "错误信息"
-                                                                                                 + e.getMessage()));
+                                                                                                 + e.getMessage())
+                             + ".");
         }
         return result;
     }
