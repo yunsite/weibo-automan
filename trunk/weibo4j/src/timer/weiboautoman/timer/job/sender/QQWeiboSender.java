@@ -73,7 +73,7 @@ public class QQWeiboSender extends WeiboSender {
                         }
                     }
                     result.setSuccess(true);
-                } else if (errcode == 13) {
+                } else {
                     result.setReason(result.getReason() + "腾讯微博发送失败发生异常,errcode:" + errcode + ",ret:" + ret + ",原因："
                                      + msg + ".");
                 }
