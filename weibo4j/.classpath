@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="sinaweibo/|sinaWeiboApi/|examples/|tool/|timer/|spilder/|qqWeiboApi/" kind="src" path="src"/>
+	<classpathentry excluding="sinaweibo/|sinaWeiboApi/|examples/|tool/|timer/|spilder/" kind="src" path="src"/>
 	<classpathentry kind="src" path="src/examples"/>
 	<classpathentry kind="src" path="src/tool"/>
 	<classpathentry kind="src" path="src/timer"/>
@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="lib/fastjson-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/QWeiboSDK.jar"/>
+	<classpathentry kind="lib" path="lib/javawind-qweibo-api-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

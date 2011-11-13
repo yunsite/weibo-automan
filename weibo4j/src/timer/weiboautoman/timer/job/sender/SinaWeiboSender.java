@@ -60,24 +60,24 @@ public class SinaWeiboSender extends WeiboSender {
                            && status.getResponse().getResponseAsString().indexOf("40028:不要太贪心哦！你已经发过一次啦") > 0) {
                     result.setSuccess(Boolean.TRUE);
                 } else {
-                    result.setReason("发送微博失败,返回状态码:" + status.getResponse().getStatusCode());
+                    result.setReason("新浪微博发送失败,返回状态码:" + status.getResponse().getStatusCode());
                 }
             }
         } catch (WeiboException e) {
             if (log.isErrorEnabled()) {
-                log.error("发送微博失败1：" + e.getMessage(), e);
+                log.error("新浪发送微博失败1：" + e.getMessage(), e);
             }
             if (e.getStatusCode() == Constants.REPEAT_MESSAGE_ERR_CODE
                 && e.getMessage().indexOf("repeated weibo text") > 0) {
                 result.setSuccess(Boolean.TRUE);
             } else {
-                result.setReason("发送微博失败发生异常,错误码:" + e.getStatusCode() + ",错误信息" + e.getMessage());
+                result.setReason("新浪发送微博失败发生异常,错误码:" + e.getStatusCode() + ",错误信息" + e.getMessage());
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error("发送微博失败2：" + e.getMessage(), e);
+                log.error("新浪发送微博失败2：" + e.getMessage(), e);
             }
-            result.setReason("发送微博失败发生异常,"
+            result.setReason("新浪发送微博失败发生异常,"
                              + (status != null ? "状态码:" + status.getResponse().getStatusCode() : "错误信息"
                                                                                                  + e.getMessage()));
         }
