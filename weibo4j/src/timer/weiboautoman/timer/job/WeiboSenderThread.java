@@ -3,15 +3,15 @@ package weiboautoman.timer.job;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.fastjson.JSONObject;
-
 import weibo4j.WeiboException;
 import weiboautoman.timer.bo.UsersTimeMsgBO;
 import weiboautoman.timer.core.Constants;
 import weiboautoman.timer.core.SendResult;
+import weiboautoman.timer.core.SendStatusEnum;
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dao.UsersWeiboDAO;
 import weiboautoman.timer.dataobject.UsersTimeMsg;
@@ -96,11 +96,14 @@ public class WeiboSenderThread implements Runnable, Cloneable {
                                 msgVO.setToken(usersWeiboVO.getToken());
                                 msgVO.setTokenSecret(usersWeiboVO.getTokenSecret());
                                 msgVO.setWeiboType(usersWeiboVO.getWeiboType());
+                                if (SendStatusEnum.SEND_SUCCESS.getValue().equals(msgDO.getIsSend())) {
+                                    continue;
+                                }
                                 sendWeibo(weiboIdJsonBean, msgVO);
                             }
                             String sendResultText = null;
                             if (!weiboIdJsonBean.isResult()) {/* 有发送失败的 */
-                                sendResultText = JSONObject.toJSONString(weiboIdJsonBean);
+                                sendResultText = JSONObject.fromObject(weiboIdJsonBean).toString();
                                 if (sendResultText.length() > Constants.MAX_ERROR_MESSAGE_LENGTH) {
                                     sendResultText = sendResultText.substring(0, Constants.MAX_ERROR_MESSAGE_LENGTH);
                                 }
@@ -202,7 +205,8 @@ public class WeiboSenderThread implements Runnable, Cloneable {
     private TimeMsgWeiboIdJsonBean getWeiboIdJsonBean(String jsonString) {
         try {
             if (!StringUtil.isNull(jsonString)) {
-                return JSONObject.parseObject(jsonString, TimeMsgWeiboIdJsonBean.class);
+                return (TimeMsgWeiboIdJsonBean) JSONObject.toBean(JSONObject.fromObject(jsonString),
+                                                                  TimeMsgWeiboIdJsonBean.class);
             }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -261,8 +265,8 @@ public class WeiboSenderThread implements Runnable, Cloneable {
 
     public static void main(String[] args) {
         String text = "{\"timeMsgWeiboId\":[{\"type\":\"Q\",\"uwid\":1},{\"type\":\"S\",\"uwid\":2}]}";
-        TimeMsgWeiboIdJsonBean jsonBean = JSONObject.parseObject(text, TimeMsgWeiboIdJsonBean.class);
-
+        TimeMsgWeiboIdJsonBean jsonBean = (TimeMsgWeiboIdJsonBean) JSONObject.toBean(JSONObject.fromObject(text),
+                                                                                     TimeMsgWeiboIdJsonBean.class);
         System.out.println(jsonBean.getTimeMsgWeiboId().length);
         for (TimeMsgWeiboId weiboId : jsonBean.getTimeMsgWeiboId()) {
             System.out.println(weiboId.getType());

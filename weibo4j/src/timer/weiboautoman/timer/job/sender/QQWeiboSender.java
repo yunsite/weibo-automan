@@ -5,10 +5,9 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONObject;
-
 import net.javawind.t_api.beans.OAuth;
 import net.javawind.t_api.commons.T_API;
+import net.sf.json.JSONObject;
 
 import weiboautoman.timer.core.SendResult;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
@@ -61,9 +60,9 @@ public class QQWeiboSender extends WeiboSender {
                 sendResultMessage = tapi.add(oauth, format, msgVO.getMsgContent(), clientIp);
             }
             if (!StringUtil.isNull(sendResultMessage)) {
-                JSONObject object = JSONObject.parseObject(sendResultMessage);
-                int errcode = object.getInteger("errcode");
-                int ret = object.getInteger("ret");
+                JSONObject object = JSONObject.fromObject(sendResultMessage);
+                int errcode = object.getInt("errcode");
+                int ret = object.getInt("ret");
                 String msg = object.getString("msg");
                 // 返回码的意思参见：http://open.t.qq.com/resource.php?i=2,2
                 if ((errcode == 0 && ret == 0) || (errcode == 13)) {// 13表示重复发表

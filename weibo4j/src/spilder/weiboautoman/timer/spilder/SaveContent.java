@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.httpclient.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,6 @@ import weiboautoman.timer.dataobject.Msg;
 import weiboautoman.timer.util.CodeUtil;
 import weiboautoman.timer.util.FileUtil;
 import weiboautoman.timer.util.HttpClientUtil;
-
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * 类SaveContent.java的实现描述：获取皮皮时光机的内容并保存
@@ -60,14 +60,16 @@ public class SaveContent {
                              + type_id;
                 log4j.warn(url);
                 content = HttpClientUtil.getGetResponseWithHttpClient(url, encode, cookie);
-                PPTimeContentObject contentObject = JSONObject.parseObject(content, PPTimeContentObject.class);
+                PPTimeContentObject contentObject = (PPTimeContentObject) JSONObject.toBean(JSONObject.fromObject(content),
+                                                                                            PPTimeContentObject.class);
                 int totalPages = contentObject.getPages().getLastpage();
                 for (int i = 1; i <= totalPages; i++) {
                     log4j.warn(url);
                     url = "http://weibo.pp.cc/time/index.php?mod=content&action=show&account=2363930463&random=279&cid=0&tid="
                           + type_id + "&page=" + i;
                     content = HttpClientUtil.getGetResponseWithHttpClient(url, encode, cookie);
-                    contentObject = JSONObject.parseObject(content, PPTimeContentObject.class);
+                    contentObject = (PPTimeContentObject) JSONObject.toBean(JSONObject.fromObject(content),
+                                                                            PPTimeContentObject.class);
                     for (Rowset row : contentObject.getRowset()) {
                         saveContent(type_id, row);
                     }
