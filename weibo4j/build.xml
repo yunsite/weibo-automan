@@ -67,6 +67,7 @@
 			<fileset dir="${build.classes}" includes="weiboautoman/**" />
 			<fileset dir="${build.classes}" includes="weibo4j/**" />
 			<fileset dir="${build.classes}" includes="log4j.xml" />
+			<fileset dir="${build.classes}" includes="commons-logging.properties" />
 			<manifest>
 				<attribute name="Built-By" value="${user.name}(${os.name} ${os.arch} ${os.version})" />
 				<attribute name="Main-Class" value="weiboautoman.timer.core.AutoMan" />
