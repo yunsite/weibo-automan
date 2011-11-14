@@ -46,9 +46,8 @@ public class SaveContent {
         });
         String content = "";
         try {
-            String cookie = FileUtil.getFileContent(args[0].trim());
-            // String cookie =
-            // "pp_weibo_content_time=; j2rZ_2132_auth=5039fm9R1L74jkjQDKj5IV1Nyq%2FZLat6pKqdE8wEDdQ8ai5yfT1YOJpzi5zOmx6fmLKdICm4RczjpbKfk1bdg2GBDdJd4Y49kX1%2FONvnmNW4x1fqX7M9Ckw; __utma=56876395.1779520664.1317621310.1318044968.1318052709.4; __utmb=56876395.1.10.1318052709; __utmc=56876395; __utmz=56876395.1317621310.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)";
+            // String cookie = FileUtil.getFileContent(args[0].trim());
+            String cookie = "__utma=56876395.514759198.1316249300.1317717397.1317797402.11; __utmz=56876395.1317797402.11.2.utmcsr=api.t.sina.com.cn|utmccn=(referral)|utmcmd=referral|utmcct=/oauth/authorize; Hm_lvt_240de918a00b0e609c0e7b5c81bbf561=1321268230968; j2rZ_2132_sid=6SqPt8tsiPsZQj8z; pp_weibo_content_time=; j2rZ_2132_auth=db37pZpZUSKSq3d9%2BBh4GnPgnmDrYDiYg3iUk6Ons7%2Fq9mRKWFSDRbpnvCd5L7yWB13oyd4qCmRqynZuJXoyVoR1j1DY; Hm_lpvt_240de918a00b0e609c0e7b5c81bbf561=1321268271280";
             cookie = cookie.trim();
             log4j.warn("cookie:" + cookie);
             String encode = "utf-8";
@@ -89,7 +88,7 @@ public class SaveContent {
             Msg msgDO = new Msg();
             msgDO.setContent(CodeUtil.ascii2Native(row.getContent()));
             msgDO.setId(Long.parseLong(row.getCid()));
-            msgDO.setPicture(row.getPicture().getPath());
+            msgDO.setPicture("images/" + row.getPicture().getPath());
             msgDO.setSortno(1);
             msgDO.setTypeId(type_id);
             Msg msg = msgDAO.selectByPrimaryKey(Long.parseLong(row.getCid()));
@@ -107,18 +106,18 @@ public class SaveContent {
         String imgUrl = "http://img2.pp.cc/attachment/weibo/";
         String fileName = FileUtil.getFileName(imageSrc);
         String imageSavePath = imageSrc.replace(fileName, "");
-        File file = new File(imageSavePath);
+        File file = new File("images/" + imageSavePath);
         if (!file.exists()) {
             file.mkdirs();
         }
         File savedImage = new File(imageSrc);
         if (!savedImage.exists()) {
             log4j.warn("save image:" + (imgUrl + imageSrc));
-            FileUtil.downloadFileByUrl(imgUrl + imageSrc, imageSrc);
+            FileUtil.downloadFileByUrl(imgUrl + imageSrc, "images/" + imageSrc);
             /** 下载缩略图 */
             imageSrc += ".thumb.jpg";
             log4j.warn("save image:" + (imgUrl + imageSrc));
-            FileUtil.downloadFileByUrl(imgUrl + imageSrc, imageSrc);
+            FileUtil.downloadFileByUrl(imgUrl + imageSrc, "images/" + imageSrc);
         }
     }
 }
