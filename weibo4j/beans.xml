@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="GB2312"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans default-autowire="byName">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://repo.alibaba-inc.com/schema/dubbo"
+	xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+    http://repo.alibaba-inc.com/schema/dubbo http://repo.alibaba-inc.com/schema/dubbo/dubbo-component.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+    default-autowire="byName">
 	<!--数据源配置（开始） -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
@@ -47,8 +52,12 @@
 	</bean>
 	<bean id="scheduledSendWeiboMsgJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 多线程发送 
 		<property name="targetObject" ref="sendWeiboMsgJob" />
-		<property name="targetMethod" value="execute" />
+		-->
+		<!-- 单线程发送 -->
+		<property name="targetObject" ref="weiboSenderThread" />
+		<property name="targetMethod" value="run" />
 	</bean>
 	<bean id="sendWeiboMsgJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
 		<property name="jobDetail" ref="scheduledSendWeiboMsgJob" />
@@ -66,8 +75,12 @@
 	</bean>
 	<bean id="scheduledSendWeiboMsgImmediateJob"
 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 多线程发送 
 		<property name="targetObject" ref="sendWeiboMsgImmediateJob" />
-		<property name="targetMethod" value="execute" />
+		-->
+		<!-- 单线程发送 -->
+		<property name="targetObject" ref="weiboSenderImmediateThread" />
+		<property name="targetMethod" value="run" />
 	</bean>
 	<bean id="sendWeiboMsgImmediateJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
 		<property name="jobDetail" ref="scheduledSendWeiboMsgImmediateJob" />
@@ -89,8 +102,8 @@
 	</bean>	
 	<!--定时器任务配置（结束） -->
 
-	<!--发送微博的线程 -->
-	<bean id="weiboSenderThread" class="weiboautoman.timer.job.WeiboSenderThread">
+	<!--发送微博的线程:默认为发送定时微博的线程 -->
+	<bean id="weiboSenderThread" class="weiboautoman.timer.job.WeiboSenderThread" scope="prototype">
 		<!-- 存放图片的路径前缀 -->
 		<property name="imagePath">
 			<value>/usr/fenglibin/images/weibotest/</value>
@@ -105,7 +118,27 @@
 				</entry>
 			</map>
 		</property>
-	</bean>	
+	</bean>
+	<!-- 发送立即发送微博的线程 -->
+	<bean id="weiboSenderImmediateThread" class="weiboautoman.timer.job.WeiboSenderThread" scope="prototype">
+		<!-- 存放图片的路径前缀 -->
+		<property name="imagePath">
+			<value>/usr/fenglibin/images/weibotest/</value>
+		</property>
+		<property name="weiboSender">
+			<map>
+				<entry key="S">
+					<bean class="weiboautoman.timer.job.sender.SinaWeiboSender"></bean>
+				</entry>
+				<entry key="Q">
+					<bean class="weiboautoman.timer.job.sender.QQWeiboSender"></bean>
+				</entry>
+			</map>
+		</property>
+		<property name="sendType">
+			<value>Y</value>
+		</property>
+	</bean>
 	<!--BO配置（开始） -->
 	<bean id="usersTimeMsgBO" class="weiboautoman.timer.bo.UsersTimeMsgBO"></bean>
 	<!--BO配置（结束） -->

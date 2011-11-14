@@ -8,6 +8,7 @@ import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 import weiboautoman.timer.dao.UsersTimeMsgDAO;
 import weiboautoman.timer.dataobject.UsersTimeMsg;
+import weiboautoman.timer.util.StringUtil;
 
 public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements UsersTimeMsgDAO {
 
@@ -40,9 +41,15 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
 
     @Override
     public long selectByUserIdFirstNumberLikeCount(String userIdFirstNumber, String sendType) {
-        userIdFirstNumber += "%";
+        if (StringUtil.isNull(userIdFirstNumber)) {
+            userIdFirstNumber = "0";
+        }
         Map param = new HashMap();
-        param.put("userIdFirstNumber", userIdFirstNumber);
+        int intUserIdFirstNumber = Integer.parseInt(userIdFirstNumber);
+        if (intUserIdFirstNumber > 0) {
+            userIdFirstNumber += "%";
+            param.put("userIdFirstNumber", userIdFirstNumber);
+        }
         param.put("sendType", sendType);
         return (Long) getSqlMapClientTemplate().queryForObject("users_time_msg.selectByUserIdFirstNumberLikeCount",
                                                                param);
@@ -52,9 +59,15 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
     @Override
     public List<UsersTimeMsg> selectByUserIdFirstNumberLike(String userIdFirstNumber, String sendType, long start,
                                                             int pageSize) {
-        userIdFirstNumber += "%";
+        if (StringUtil.isNull(userIdFirstNumber)) {
+            userIdFirstNumber = "0";
+        }
         Map param = new HashMap();
-        param.put("userIdFirstNumber", userIdFirstNumber);
+        int intUserIdFirstNumber = Integer.parseInt(userIdFirstNumber);
+        if (intUserIdFirstNumber > 0) {
+            userIdFirstNumber += "%";
+            param.put("userIdFirstNumber", userIdFirstNumber);
+        }
         param.put("sendType", sendType);
         param.put("start", start);
         param.put("pageSize", pageSize);

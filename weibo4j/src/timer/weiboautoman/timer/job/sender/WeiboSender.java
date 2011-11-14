@@ -1,6 +1,9 @@
 package weiboautoman.timer.job.sender;
 
 import weiboautoman.timer.core.SendResult;
+import weiboautoman.timer.core.SendStatusEnum;
+import weiboautoman.timer.dao.UsersTimeMsgDAO;
+import weiboautoman.timer.dataobject.UsersTimeMsg;
 import weiboautoman.timer.dataobject.vo.UsersTimeMsgVO;
 import weiboautoman.timer.util.StringUtil;
 
@@ -11,10 +14,11 @@ import weiboautoman.timer.util.StringUtil;
  */
 public abstract class WeiboSender {
 
+    private UsersTimeMsgDAO usersTimeMsgDAO;
     /**
      * 微博配图的前缀物理地址
      */
-    private String imagePath;
+    private String          imagePath;
 
     /**
      * 微博发送方法
@@ -39,12 +43,25 @@ public abstract class WeiboSender {
         return type;
     }
 
+    protected boolean isSendCheck(UsersTimeMsgVO msgVO) {
+        boolean isSend = Boolean.FALSE;
+        UsersTimeMsg usersTimeMsg = usersTimeMsgDAO.selectByPrimaryKey(msgVO.getId());
+        if (SendStatusEnum.SEND_SUCCESS.getValue().equalsIgnoreCase(usersTimeMsg.getIsSend())) {
+            isSend = Boolean.TRUE;
+        }
+        return isSend;
+    }
+
     public String getImagePath() {
         return imagePath;
     }
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public void setUsersTimeMsgDAO(UsersTimeMsgDAO usersTimeMsgDAO) {
+        this.usersTimeMsgDAO = usersTimeMsgDAO;
     }
 
 }
