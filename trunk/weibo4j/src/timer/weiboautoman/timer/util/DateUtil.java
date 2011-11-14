@@ -19,4 +19,14 @@ public class DateUtil {
         String date = sdf.format(new Date());
         return date;
     }
+
+    public static String timeStamp2Date(long timestamp) {
+        timestamp = timestamp * 1000;
+        String date = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date(timestamp));
+        return date;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(timeStamp2Date(1321236000));
+    }
 }

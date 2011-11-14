@@ -37,6 +37,9 @@ public class QQWeiboSender extends WeiboSender {
         if (type.indexOf(QQ_WEIBO_MARK) < 0) {
             return result;
         }
+        if (super.isSendCheck(msgVO)) {
+            return result;
+        }
         result = new SendResult();
         try {
             OAuth oauth = new OAuth(appKey, appSecret, callBackURL); // 初始化OAuth请求令牌

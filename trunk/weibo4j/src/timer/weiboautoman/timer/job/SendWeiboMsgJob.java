@@ -19,7 +19,7 @@ public class SendWeiboMsgJob {
         this.weiboSenderThread = weiboSenderThread;
     }
 
-    protected void execute() {
+    protected void run() {
         /** 使用9个线程来发送，每个线程分别执行用户ID以1到9为开始制订的任务 */
         for (int i = 1; i <= 9; i++) {
             WeiboSenderThread senderThread = weiboSenderThread.clone();

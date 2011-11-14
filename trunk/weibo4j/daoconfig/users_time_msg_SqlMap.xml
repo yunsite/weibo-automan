@@ -23,14 +23,20 @@
   	select count(*) 
   		from users_time_msg 
   		where upper(is_send)='N' and unix_timestamp(now())>=send_time
-  			and user_id like #userIdFirstNumber# and send_type = #sendType#
+  			and send_type = #sendType#
+	  	<isNotNull property="userIdFirstNumber" >
+	        and user_id like #userIdFirstNumber#
+	    </isNotNull>
   </select>
   <!--翻页查询记录-->
   <select id="selectByUserIdFirstNumberLike" parameterClass="java.util.Map" resultMap="BaseResultMap">
   	select id, user_id, weibo_id, msg_content, msg_picture, send_time, is_send, send_result, msg_id, send_type
     from users_time_msg
   	where upper(is_send)='N' and unix_timestamp(now())>=send_time
-  		and user_id like #userIdFirstNumber# and send_type = #sendType#
+  		and send_type = #sendType#
+  	<isNotNull property="userIdFirstNumber" >
+        and user_id like #userIdFirstNumber#
+    </isNotNull>
   	limit #start#,#pageSize#
   </select>
   <delete id="deleteByPrimaryKey" parameterClass="weiboautoman.timer.dataobject.UsersTimeMsg" >

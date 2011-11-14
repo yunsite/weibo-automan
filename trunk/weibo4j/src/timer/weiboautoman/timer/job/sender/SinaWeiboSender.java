@@ -32,12 +32,14 @@ public class SinaWeiboSender extends WeiboSender {
         if (type.indexOf(SINA_WEIBO_MARK) < 0) {
             return result;
         }
+        if (super.isSendCheck(msgVO)) {
+            return result;
+        }
         result = new SendResult();
         Status status = null;
         try {
             Weibo weibo = new Weibo();
             weibo.setToken(msgVO.getToken(), msgVO.getTokenSecret());
-
             if (!StringUtil.isNull(msgVO.getMsgPicture())) {// 带图片的微博
                 String localImage = null;
                 if (msgVO.getMsgPicture().startsWith("http")) {// 网络图片
