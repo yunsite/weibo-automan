@@ -125,10 +125,11 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private static final int                 OPEN_FILE_CHOOSER_ACTIVITY      = 2;
     /* 布局渲染器 */
     protected LayoutInflater                 mInflater                       = null;
-
+    /* 包括地址栏的顶部工具条 */
     private LinearLayout                     mTopBar;
+    /* 询问工具栏 */
     private LinearLayout                     mBottomBar;
-
+    /* 文字查找工具工具条 */
     private LinearLayout                     mFindBar;
 
     private ImageButton                      mFindPreviousButton;
@@ -141,6 +142,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private ImageView                        mNextTabView;
 
     private ImageButton                      mToolsButton;
+    /** 可自动完成的url输入文本框 */
     private AutoCompleteTextView             mUrlEditText;
     private ImageButton                      mGoButton;
     private ProgressBar                      mProgressBar;
@@ -314,15 +316,20 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
      * Create main UI.
      */
     private void buildComponents() {
-
+        /* 浏览器左上角点击时出现在工具 */
         mToolsActionGrid = new QuickActionGrid(this);
+        /* 回到首页 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_home, R.string.QuickAction_Home));
+        /* 分享到微博等 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_share, R.string.QuickAction_Share));
+        /* 在当前页面中进行内容的查找 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_find, R.string.QuickAction_Find));
+        /* 选择文本 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_select, R.string.QuickAction_SelectText));
+        /* 移动网关，这里指的是访问网站通过GOOGLE，让GOOGLE来格式化内容，加快用户的访问速度 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_mobile_view,
                                                         R.string.QuickAction_MobileView));
-
+        /* 指定它们相应的触发动作，这里是根据加入的位置顺序来确定的 */
         mToolsActionGrid.setOnQuickActionClickListener(new OnQuickActionClickListener() {
 
             @Override
@@ -357,7 +364,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 }
             }
         });
-
+        /* 设置消失的监听器 */
         mToolsActionGrid.setOnDismissListener(new PopupWindow.OnDismissListener() {
 
             @Override
@@ -366,14 +373,15 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 startToolbarsHideRunnable();
             }
         });
-
+        /* 手势监听器 */
         mGestureDetector = new GestureDetector(this, new GestureListener());
-
+        /* 页面刚加载的时候，显示url输入地址栏，这个可以优化为不显示 */
         mUrlBarVisible = true;
 
         mWebViews = new ArrayList<CustomWebView>();
         Controller.getInstance().setWebViewList(mWebViews);
 
+        /* 右下脚一块类似阴影的图片，点击会显示顶部、底的工具栏 */
         mBubbleRightView = (ImageView) findViewById(R.id.BubbleRightView);
         mBubbleRightView.setOnClickListener(new View.OnClickListener() {
 
@@ -383,7 +391,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             }
         });
         mBubbleRightView.setVisibility(View.GONE);
-
+        /* 这个左下脚的，目前还没有发现 */
         mBubbleLeftView = (ImageView) findViewById(R.id.BubbleLeftView);
         mBubbleLeftView.setOnClickListener(new View.OnClickListener() {
 
@@ -417,6 +425,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         mFindBar = (LinearLayout) findViewById(R.id.findControls);
         mFindBar.setVisibility(View.GONE);
 
+        /** 多TAB页的时候，会有上、下多个TAB页切换的（开始） */
         mPreviousTabView = (ImageView) findViewById(R.id.PreviousTabView);
         mPreviousTabView.setOnClickListener(new View.OnClickListener() {
 
@@ -436,7 +445,23 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             }
         });
         mNextTabView.setVisibility(View.GONE);
+        /** 多TAB页的时候，会有上、下多个TAB页切换的（结束） */
 
+        /* 加载进度栏 */
+        mProgressBar = (ProgressBar) findViewById(R.id.WebViewProgress);
+        mProgressBar.setMax(100);
+        /* 左上脚的工具按钮 */
+        mToolsButton = (ImageButton) findViewById(R.id.ToolsBtn);
+        mToolsButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mToolsActionGridVisible = true;
+                mToolsActionGrid.show(v);
+            }
+        });
+
+        /** 输入提示（开始） */
         String[] from = new String[] { UrlSuggestionCursorAdapter.URL_SUGGESTION_TITLE,
                 UrlSuggestionCursorAdapter.URL_SUGGESTION_URL };
         int[] to = new int[] { R.id.AutocompleteTitle, R.id.AutocompleteUrl };
@@ -452,7 +477,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 return aColumnString;
             }
         });
-
+        /* 设置自动提示为和书签中比较的内容，这里可以优化为包括书答以及指定的额外的URL */
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
 
             @Override
@@ -470,11 +495,13 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 }
             }
         });
+        /** 输入提示（结整） */
 
         mUrlEditText = (AutoCompleteTextView) findViewById(R.id.UrlText);
         mUrlEditText.setThreshold(1);
+        /* 设置URL自动完成的适配器 */
         mUrlEditText.setAdapter(adapter);
-
+        /* 增加键盘事情，当按回车的时候，就指定转到指定URL的动作 */
         mUrlEditText.setOnKeyListener(new View.OnKeyListener() {
 
             @Override
@@ -488,7 +515,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             }
 
         });
-
+        /* 声明文本内容变化监听器 */
         mUrlTextWatcher = new TextWatcher() {
 
             @Override
@@ -504,9 +531,9 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 updateGoButton();
             }
         };
-
+        /* 增加文本变化监听器 */
         mUrlEditText.addTextChangedListener(mUrlTextWatcher);
-
+        /* 对输入框获取焦点的处理，此时全部选中文本框中的内容 */
         mUrlEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
             @Override
@@ -520,59 +547,33 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
         mUrlEditText.setCompoundDrawablePadding(5);
 
+        /* URL跳转按钮的事件 */
         mGoButton = (ImageButton) findViewById(R.id.GoBtn);
+        /* 这个按钮有三种状态：正在加载的状态、加载完成的状态、待转到新URL的状态（地址栏中正在输入URL的时候） */
         mGoButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
 
-                if (mCurrentWebView.isLoading()) {
+                if (mCurrentWebView.isLoading()) {/* 正在加载就停止加载 */
                     mCurrentWebView.stopLoading();
-                } else if (!mCurrentWebView.isSameUrl(mUrlEditText.getText().toString())) {
+                } else if (!mCurrentWebView.isSameUrl(mUrlEditText.getText().toString())) {/* 与当前页面的URL不同，就转到指定的URL */
                     navigateToUrl();
-                } else {
+                } else {/* 直接刷新当前页面 */
                     mCurrentWebView.reload();
                 }
             }
         });
 
-        mToolsButton = (ImageButton) findViewById(R.id.ToolsBtn);
-        mToolsButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                mToolsActionGridVisible = true;
-                mToolsActionGrid.show(v);
-            }
-        });
-
-        mProgressBar = (ProgressBar) findViewById(R.id.WebViewProgress);
-        mProgressBar.setMax(100);
-
+        /** <<<<<<<<<<底部工具栏（开始） */
+        /* 返回上一页的按钮，在底部工具栏上 */
         mPreviousButton = (ImageButton) findViewById(R.id.PreviousBtn);
-        mNextButton = (ImageButton) findViewById(R.id.NextBtn);
-
         mPreviousButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
                 navigatePrevious();
             }
         });
-
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                navigateNext();
-            }
-        });
-
-        mNewTabButton = (ImageButton) findViewById(R.id.NewTabBtn);
-        mNewTabButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                addTab(true);
-            }
-        });
-
+        /* 删除当前的TAB页 */
         mRemoveTabButton = (ImageButton) findViewById(R.id.RemoveTabBtn);
         mRemoveTabButton.setOnClickListener(new View.OnClickListener() {
 
@@ -580,7 +581,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 removeCurrentTab();
             }
         });
-
+        /* 显示书签 */
         mQuickButton = (ImageButton) findViewById(R.id.QuickBtn);
         mQuickButton.setOnClickListener(new View.OnClickListener() {
 
@@ -588,7 +589,26 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 onQuickButton();
             }
         });
+        /* 增另一个新的TAB，支持用户同时打开多个页面 */
+        mNewTabButton = (ImageButton) findViewById(R.id.NewTabBtn);
+        mNewTabButton.setOnClickListener(new View.OnClickListener() {
 
+            public void onClick(View view) {
+                addTab(true);
+            }
+        });
+        /* 进入下一页的按钮，在底部工具栏上 */
+        mNextButton = (ImageButton) findViewById(R.id.NextBtn);
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+                navigateNext();
+            }
+        });
+        /** 底部工具栏（结束） >>>>>>>>>> */
+
+        /** <<<<<<<<<<查找工具栏（开始） */
+        /* 查找工具栏的查找前一个 */
         mFindPreviousButton = (ImageButton) findViewById(R.id.find_previous);
         mFindPreviousButton.setOnClickListener(new OnClickListener() {
 
@@ -598,7 +618,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 hideKeyboardFromFindDialog();
             }
         });
-
+        /* 查找工具栏的查找下一个 */
         mFindNextButton = (ImageButton) findViewById(R.id.find_next);
         mFindNextButton.setOnClickListener(new OnClickListener() {
 
@@ -608,16 +628,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 hideKeyboardFromFindDialog();
             }
         });
-
-        mFindCloseButton = (ImageButton) findViewById(R.id.find_close);
-        mFindCloseButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                closeFindDialog();
-            }
-        });
-
+        /* 查找工具栏的文本输入框 */
         mFindText = (EditText) findViewById(R.id.find_value);
         mFindText.addTextChangedListener(new TextWatcher() {
 
@@ -634,6 +645,16 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             public void afterTextChanged(Editable s) {
             }
         });
+        /* 查找工具栏的关闭当前查找按钮 */
+        mFindCloseButton = (ImageButton) findViewById(R.id.find_close);
+        mFindCloseButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                closeFindDialog();
+            }
+        });
+        /** 查找工具栏（结束）>>>>>>>>>> */
 
     }
 
@@ -1047,6 +1068,9 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         showKeyboardForFindDialog();
     }
 
+    /**
+     * 关闭查找对话框
+     */
     private void closeFindDialog() {
         hideKeyboardFromFindDialog();
         mCurrentWebView.doNotifyFindDialogDismissed();
@@ -1164,11 +1188,17 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
     }
 
+    /**
+     * 为查找对话框显示输入键盘
+     */
     private void showKeyboardForFindDialog() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(mFindText, InputMethodManager.SHOW_IMPLICIT);
     }
 
+    /**
+     * 关闭查找对话框的输入键盘
+     */
     private void hideKeyboardFromFindDialog() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mFindText.getWindowToken(), 0);
@@ -1932,12 +1962,14 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
      */
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
+        /* 双击 */
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             mCurrentWebView.zoomIn();
             return super.onDoubleTap(e);
         }
 
+        /* 滑动 */
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (isSwitchTabsByFlingEnabled()) {
