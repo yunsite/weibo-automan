@@ -127,7 +127,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     protected LayoutInflater                 mInflater                       = null;
     /* 包括地址栏的顶部工具条 */
     private LinearLayout                     mTopBar;
-    /* 询问工具栏 */
+    /* 底部工具栏 */
     private LinearLayout                     mBottomBar;
     /* 文字查找工具工具条 */
     private LinearLayout                     mFindBar;
@@ -169,7 +169,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
     private TextWatcher                      mUrlTextWatcher;
 
-    private HideToolbarsRunnable             mHideToolbarsRunnable;
     /* 简单的View展示器，一次只能够依附于Activity的一个View，并且支持循环展示 */
     private ViewFlipper                      mViewFlipper;
 
@@ -207,14 +206,13 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
 
         setProgressBarVisibility(true);
-
+        /* 设置打开后显示的Activity */
         setContentView(R.layout.main);
 
+        /* 滚动加载效果 */
         mCircularProgress = getResources().getDrawable(R.drawable.spinner);
         /* 增加当前Activity的下载监听事件 */
         EventController.getInstance().addDownloadListener(this);
-
-        mHideToolbarsRunnable = null;
 
         mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -238,7 +236,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             int savedVersionCode = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFERENCES_LAST_VERSION_CODE,
                                                                                               -1);
 
-            // If currentVersionCode and savedVersionCode are different, the application has been updated.
+            // If currentVersionCode and savedVersionCode are different, the
+            // application has been updated.
             if (currentVersionCode != savedVersionCode) {
                 // Save current version code.
                 Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -254,8 +253,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
 
         initializeWebIconDatabase();
-
-        startToolbarsHideRunnable();
 
     }
 
@@ -316,7 +313,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
      * Create main UI.
      */
     private void buildComponents() {
-        /* 浏览器左上角点击时出现在工具 */
+        /* 浏览器左上角点击时出现的工具栏 */
         mToolsActionGrid = new QuickActionGrid(this);
         /* 回到首页 */
         mToolsActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_home, R.string.QuickAction_Home));
@@ -343,8 +340,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                                                    mCurrentWebView.getUrl());
                         break;
                     case 2:
-                        // Somewhat dirty hack: when the find dialog was shown from a QuickAction,
-                        // the soft keyboard did not show... Hack is to wait a little before showing
+                        // Somewhat dirty hack: when the find dialog was
+                        // shown from a QuickAction,
+                        // the soft keyboard did not show... Hack is to wait
+                        // a little before showing
                         // the file dialog through a thread.
                         startShowFindDialogRunnable();
                         break;
@@ -370,13 +369,12 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             @Override
             public void onDismiss() {
                 mToolsActionGridVisible = false;
-                startToolbarsHideRunnable();
             }
         });
         /* 手势监听器 */
         mGestureDetector = new GestureDetector(this, new GestureListener());
         /* 页面刚加载的时候，显示url输入地址栏，这个可以优化为不显示 */
-        mUrlBarVisible = true;
+        mUrlBarVisible = false;
 
         mWebViews = new ArrayList<CustomWebView>();
         Controller.getInstance().setWebViewList(mWebViews);
@@ -409,7 +407,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             @Override
             public void onClick(View v) {
-                // Dummy event to steel it from the WebView, in case of clicking between the buttons.
+                // Dummy event to steel it from the WebView, in case of clicking
+                // between the buttons.
             }
         });
 
@@ -418,7 +417,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             @Override
             public void onClick(View v) {
-                // Dummy event to steel it from the WebView, in case of clicking between the buttons.
+                // Dummy event to steel it from the WebView, in case of clicking
+                // between the buttons.
             }
         });
 
@@ -431,7 +431,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             @Override
             public void onClick(View v) {
-                showPreviousTab(true);
+                showPreviousTab();
             }
         });
         mPreviousTabView.setVisibility(View.GONE);
@@ -441,7 +441,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             @Override
             public void onClick(View v) {
-                showNextTab(true);
+                showNextTab();
             }
         });
         mNextTabView.setVisibility(View.GONE);
@@ -805,7 +805,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         mCurrentWebView.setWebChromeClient(new WebChromeClient() {
 
             @SuppressWarnings("unused")
-            // This is an undocumented method, it _is_ used, whatever Eclipse may think :)
+            // This is an undocumented method, it _is_ used, whatever Eclipse
+            // may think :)
             // Used to show a file chooser dialog.
             public void openFileChooser(ValueCallback<Uri> uploadMsg) {
                 mUploadMessage = uploadMsg;
@@ -1133,8 +1134,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 mBubbleLeftView.setVisibility(View.GONE);
             }
 
-            startToolbarsHideRunnable();
-
             mUrlBarVisible = true;
 
         } else {
@@ -1206,20 +1205,13 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
     /**
      * Hide the keyboard.
-     * 
-     * @param delayedHideToolbars If True, will start a runnable to delay tool bars hiding. If False, tool bars are
-     * hidden immediatly.
      */
-    private void hideKeyboard(boolean delayedHideToolbars) {
+    private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mUrlEditText.getWindowToken(), 0);
 
         if (mUrlBarVisible) {
-            if (delayedHideToolbars) {
-                startToolbarsHideRunnable();
-            } else {
-                setToolbarsVisibility(false);
-            }
+            setToolbarsVisibility(false);
         }
     }
 
@@ -1252,25 +1244,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
-     * Start a runnable to hide the tool bars after a user-defined delay.
-     */
-    private void startToolbarsHideRunnable() {
-
-        if (mHideToolbarsRunnable != null) {
-            mHideToolbarsRunnable.setDisabled();
-        }
-
-        int delay = Integer.parseInt(Controller.getInstance().getPreferences().getString(Constants.PREFERENCES_GENERAL_BARS_DURATION,
-                                                                                         "3000"));
-        if (delay <= 0) {
-            delay = 3000;
-        }
-
-        mHideToolbarsRunnable = new HideToolbarsRunnable(this, delay);
-        new Thread(mHideToolbarsRunnable).start();
-    }
-
-    /**
      * Hide the tool bars.
      */
     public void hideToolbars() {
@@ -1282,7 +1255,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 }
             }
         }
-        mHideToolbarsRunnable = null;
     }
 
     /**
@@ -1314,7 +1286,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 url = UrlUtils.getSearchUrl(this, url);
             }
 
-            hideKeyboard(true);
+            hideKeyboard();
 
             if (url.equals(Constants.URL_ABOUT_START)) {
 
@@ -1324,7 +1296,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             } else {
 
-                // If the url is not from GWT mobile view, and is in the mobile view url list, then load it with GWT.
+                // If the url is not from GWT mobile view, and is in the mobile
+                // view url list, then load it with GWT.
                 if ((!url.startsWith(Constants.URL_GOOGLE_MOBILE_VIEW_NO_FORMAT))
                     && (UrlUtils.checkInMobileViewUrlList(this, url))) {
 
@@ -1358,7 +1331,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         // Needed to hide toolbars properly.
         mUrlEditText.clearFocus();
 
-        hideKeyboard(true);
+        hideKeyboard();
         mCurrentWebView.goBack();
     }
 
@@ -1369,7 +1342,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         // Needed to hide toolbars properly.
         mUrlEditText.clearFocus();
 
-        hideKeyboard(true);
+        hideKeyboard();
         mCurrentWebView.goForward();
     }
 
@@ -1421,7 +1394,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
 
                     if (volumeKeysBehaviour.equals("SWITCH_TABS")) {
-                        showPreviousTab(false);
+                        showPreviousTab();
                     } else if (volumeKeysBehaviour.equals("HISTORY")) {
                         mCurrentWebView.goForward();
                     } else {
@@ -1432,7 +1405,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 case KeyEvent.KEYCODE_VOLUME_UP:
 
                     if (volumeKeysBehaviour.equals("SWITCH_TABS")) {
-                        showNextTab(false);
+                        showNextTab();
                     } else if (volumeKeysBehaviour.equals("HISTORY")) {
                         mCurrentWebView.goBack();
                     } else {
@@ -1742,7 +1715,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     /**
      * Show the previous tab, if any.
      */
-    private void showPreviousTab(boolean resetToolbarsRunnable) {
+    private void showPreviousTab() {
 
         if (mViewFlipper.getChildCount() > 1) {
 
@@ -1761,10 +1734,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             mCurrentWebView.doOnResume();
 
-            if (resetToolbarsRunnable) {
-                startToolbarsHideRunnable();
-            }
-
             showToastOnTabSwitch();
 
             updatePreviousNextTabViewsVisibility();
@@ -1776,7 +1745,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     /**
      * Show the next tab, if any.
      */
-    private void showNextTab(boolean resetToolbarsRunnable) {
+    private void showNextTab() {
 
         if (mViewFlipper.getChildCount() > 1) {
 
@@ -1795,10 +1764,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             mCurrentWebView.doOnResume();
 
-            if (resetToolbarsRunnable) {
-                startToolbarsHideRunnable();
-            }
-
             showToastOnTabSwitch();
 
             updatePreviousNextTabViewsVisibility();
@@ -1810,7 +1775,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        hideKeyboard(false);
+        hideKeyboard();
 
         return mGestureDetector.onTouchEvent(event);
     }
@@ -1846,10 +1811,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
 
         WebIconDatabase.getInstance().retainIconForPageUrl(mCurrentWebView.getUrl());
-
-        if (mUrlBarVisible) {
-            startToolbarsHideRunnable();
-        }
     }
 
     public void onPageStarted(String url) {
@@ -1969,21 +1930,21 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             return super.onDoubleTap(e);
         }
 
-        /* 滑动 */
+        /* 对滑动操作的处理 */
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (isSwitchTabsByFlingEnabled()) {
                 if (e2.getEventTime() - e1.getEventTime() <= FLIP_TIME_THRESHOLD) {
                     if (e2.getX() > (e1.getX() + FLIP_PIXEL_THRESHOLD)) {
 
-                        showPreviousTab(false);
+                        showPreviousTab();
                         return false;
                     }
 
                     // going forwards: pushing stuff to the left
                     if (e2.getX() < (e1.getX() - FLIP_PIXEL_THRESHOLD)) {
 
-                        showNextTab(false);
+                        showNextTab();
                         return false;
                     }
                 }
