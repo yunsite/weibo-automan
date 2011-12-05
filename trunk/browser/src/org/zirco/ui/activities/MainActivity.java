@@ -29,7 +29,6 @@ import org.zirco.ui.activities.preferences.PreferencesActivity;
 import org.zirco.ui.components.CustomWebView;
 import org.zirco.ui.components.CustomWebViewClient;
 import org.zirco.ui.runnables.FaviconUpdaterRunnable;
-import org.zirco.ui.runnables.HideToolbarsRunnable;
 import org.zirco.ui.runnables.HistoryUpdater;
 import org.zirco.utils.AnimationManager;
 import org.zirco.utils.ApplicationUtils;
@@ -1857,6 +1856,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                                                                                                                                      }
                                                                                                                                  }).setCancelable(true).create().show();
         }
+    }
+
+    public void setHttpAuthUsernamePassword(String host, String realm, String username, String password) {
+        mCurrentWebView.setHttpAuthUsernamePassword(host, realm, username, password);
     }
 
     @Override
