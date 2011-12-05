@@ -1133,8 +1133,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             mUrlBarVisible = true;
 
         } else {
-            mTopBar.startAnimation(AnimationManager.getInstance().getTopBarHideAnimation());
-            mTopBar.setVisibility(View.GONE);
+            if (mUrlBarVisible) {
+                mTopBar.startAnimation(AnimationManager.getInstance().getTopBarHideAnimation());
+                mTopBar.setVisibility(View.GONE);
+            }
             mUrlBarVisible = false;
         }
     }
@@ -1265,14 +1267,14 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
-     * Hide the keyboard.
+     * 隐藏输入键盘，如果地址栏是显示的，则这里把地址栏隐藏起来
      */
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mUrlEditText.getWindowToken(), 0);
 
         if (mUrlBarVisible) {
-            setToolbarsVisibility(false);
+            setUrlBarVisibility(false);
         }
     }
 
