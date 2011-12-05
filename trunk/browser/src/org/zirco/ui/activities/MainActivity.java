@@ -126,6 +126,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     protected LayoutInflater                 mInflater                       = null;
     /* 包括地址栏的顶部工具条 */
     private LinearLayout                     mTopBar;
+    private LinearLayout                     mProgressBarLinear;
     /* 底部工具栏 */
     private LinearLayout                     mBottomBar;
     /* 文字查找工具工具条 */
@@ -144,7 +145,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     /** 可自动完成的url输入文本框 */
     private AutoCompleteTextView             mUrlEditText;
     private ImageButton                      mGoButton;
+    /** 页面加载进度条 */
     private ProgressBar                      mProgressBar;
+    /** 页面加载进度条是否可见 */
+    private boolean                          mProgressBarVisible;
 
     private ImageView                        mBubbleRightView;
     private ImageView                        mBubbleLeftView;
@@ -161,8 +165,12 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private ImageButton                      mQuickButton;
     /* 输入URL后，地址栏右边的滚动加载效果，是通过配置文件drawable/spinner.xml中的8张图片循环显示达到的效果 */
     private Drawable                         mCircularProgress;
-
+    /* 地址栏是否可见 */
     private boolean                          mUrlBarVisible;
+    /* 底部工具栏是否可见 */
+    private boolean                          mButtomBarVisible;
+    /* 页面两边的向前向后飜类似箭头的图标是否可见 */
+    private boolean                          mBubbleVisible;
     private boolean                          mToolsActionGridVisible         = false;
     private boolean                          mFindDialogVisible              = false;
 
@@ -409,6 +417,17 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 // Dummy event to steel it from the WebView, in case of clicking
                 // between the buttons.
             }
+        });
+
+        mProgressBarLinear = (LinearLayout) findViewById(R.id.WebViewProgressLayout);
+        mProgressBarLinear.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+
+            }
+
         });
 
         mBottomBar = (LinearLayout) findViewById(R.id.BottomBarLayout);
@@ -1095,6 +1114,59 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
      * @param visible If True, the tool bars will be shown.
      */
     private void setToolbarsVisibility(boolean visible) {
+        setUrlBarVisibility(visible);
+        setButtomBarVisibility(visible);
+        setBubbleVisibility(visible);
+    }
+
+    /**
+     * 设置地址栏所在工具栏是否可见
+     * 
+     * @param visible
+     */
+    private void setUrlBarVisibility(boolean visible) {
+        if (visible) {
+            if (!mUrlBarVisible) {
+                mTopBar.startAnimation(AnimationManager.getInstance().getTopBarShowAnimation());
+                mTopBar.setVisibility(View.VISIBLE);
+            }
+            mUrlBarVisible = true;
+
+        } else {
+            mTopBar.startAnimation(AnimationManager.getInstance().getTopBarHideAnimation());
+            mTopBar.setVisibility(View.GONE);
+            mUrlBarVisible = false;
+        }
+    }
+
+    /**
+     * 设置底部工具栏是否可见
+     * 
+     * @param visible
+     */
+    private void setButtomBarVisibility(boolean visible) {
+        if (visible) {
+            if (!mButtomBarVisible) {
+                mBottomBar.startAnimation(AnimationManager.getInstance().getBottomBarShowAnimation());
+                mBottomBar.setVisibility(View.VISIBLE);
+            }
+            mButtomBarVisible = true;
+
+        } else {
+            if (mButtomBarVisible) {
+                mBottomBar.startAnimation(AnimationManager.getInstance().getBottomBarHideAnimation());
+                mBottomBar.setVisibility(View.GONE);
+            }
+            mButtomBarVisible = false;
+        }
+    }
+
+    /**
+     * 页面两边的向前向后飜类似箭头的图标是否可见
+     * 
+     * @param visible
+     */
+    private void setBubbleVisibility(boolean visible) {
 
         boolean switchTabByButtons = isSwitchTabsByButtonsEnabled();
         boolean showPreviousTabView = mViewFlipper.getDisplayedChild() > 0;
@@ -1102,9 +1174,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
         if (visible) {
 
-            if (!mUrlBarVisible) {
-                mTopBar.startAnimation(AnimationManager.getInstance().getTopBarShowAnimation());
-                mBottomBar.startAnimation(AnimationManager.getInstance().getBottomBarShowAnimation());
+            if (!mBubbleVisible) {
 
                 if (switchTabByButtons) {
                     if (showPreviousTabView) {
@@ -1115,9 +1185,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                         mNextTabView.startAnimation(AnimationManager.getInstance().getNextTabViewShowAnimation());
                     }
                 }
-
-                mTopBar.setVisibility(View.VISIBLE);
-                mBottomBar.setVisibility(View.VISIBLE);
 
                 if (switchTabByButtons) {
                     if (showPreviousTabView) {
@@ -1133,13 +1200,11 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 mBubbleLeftView.setVisibility(View.GONE);
             }
 
-            mUrlBarVisible = true;
+            mBubbleVisible = true;
 
         } else {
 
-            if (mUrlBarVisible) {
-                mTopBar.startAnimation(AnimationManager.getInstance().getTopBarHideAnimation());
-                mBottomBar.startAnimation(AnimationManager.getInstance().getBottomBarHideAnimation());
+            if (mBubbleVisible) {
 
                 if (switchTabByButtons) {
                     if (showPreviousTabView) {
@@ -1150,9 +1215,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                         mNextTabView.startAnimation(AnimationManager.getInstance().getNextTabViewHideAnimation());
                     }
                 }
-
-                mTopBar.setVisibility(View.GONE);
-                mBottomBar.setVisibility(View.GONE);
 
                 if (switchTabByButtons) {
                     if (showPreviousTabView) {
@@ -1182,7 +1244,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 }
             }
 
-            mUrlBarVisible = false;
+            mBubbleVisible = false;
         }
     }
 
@@ -1801,36 +1863,62 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
     }
 
+    /**
+     * 页面加载完成后执行的动作
+     * 
+     * @param url
+     */
     public void onPageFinished(String url) {
         updateUI();
-
         if ((Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_ADBLOCKER_ENABLE, true))
             && (!checkInAdBlockWhiteList(mCurrentWebView.getUrl()))) {
             mCurrentWebView.loadAdSweep();
         }
-
         WebIconDatabase.getInstance().retainIconForPageUrl(mCurrentWebView.getUrl());
+        /* 隐藏加载状态栏 */
+        setProgressBarLinearVisible(false);
+
     }
 
+    /**
+     * 页面开始加载时执行的动作
+     * 
+     * @param url
+     */
     public void onPageStarted(String url) {
         if (mFindDialogVisible) {
             closeFindDialog();
         }
-
-        mUrlEditText.removeTextChangedListener(mUrlTextWatcher);
-        mUrlEditText.setText(url);
-        mUrlEditText.addTextChangedListener(mUrlTextWatcher);
-
-        mPreviousButton.setEnabled(false);
-        mNextButton.setEnabled(false);
-
-        updateGoButton();
-
-        setToolbarsVisibility(true);
+        /* 隐藏地址栏 */
+        setUrlBarVisibility(false);
+        /* 显示加载状态栏 */
+        setProgressBarLinearVisible(true);
     }
 
+    /**
+     * 设置加载进度条所在行是否显示
+     * 
+     * @param visible
+     */
+    private void setProgressBarLinearVisible(boolean visible) {
+        if (visible) {
+            if (!mProgressBarVisible) {
+                mProgressBarLinear.setVisibility(View.VISIBLE);
+            }
+            mProgressBarVisible = true;
+        } else {
+            mProgressBarLinear.setVisibility(View.GONE);
+            mProgressBarVisible = false;
+        }
+    }
+
+    /**
+     * 页面加载时候执行的动作
+     * 
+     * @param url
+     */
     public void onUrlLoading(String url) {
-        setToolbarsVisibility(true);
+        /* 这里可以放置一个页面加载效果 */
     }
 
     public void onMailTo(String url) {

@@ -24,9 +24,9 @@
 		<ViewFlipper android:id="@+id/ViewFlipper"
 			android:layout_width="fill_parent" android:layout_height="fill_parent">
 		</ViewFlipper>
-
-		<LinearLayout android:id="@+id/BarLayout"
-			android:layout_toRightOf="@+id/GoBtn" android:layout_width="fill_parent"
+		<!-- 进度条 -->
+		<LinearLayout android:id="@+id/WebViewProgressLayout"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:scaleType="fitXY" android:weightSum="0.75"
 			android:layout_alignParentTop="true" android:orientation="vertical">														
 			
@@ -35,6 +35,12 @@
 				android:indeterminate="false" style="@android:style/Widget.ProgressBar.Horizontal"
 				android:layout_marginLeft="3dip" android:layout_marginRight="3dip" android:layout_marginTop="3dip"
 				android:maxHeight="5px" android:minHeight="5px"></ProgressBar>
+		</LinearLayout>
+		<!-- 地址栏 -->
+		<LinearLayout android:id="@+id/BarLayout"
+			android:layout_toRightOf="@+id/GoBtn" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:scaleType="fitXY" android:weightSum="0.75"
+			android:layout_alignParentTop="true" android:orientation="vertical">
 			
 			<LinearLayout android:layout_width="fill_parent"
 				android:layout_height="wrap_content">							
@@ -68,7 +74,7 @@
 			</LinearLayout>											
 			
 		</LinearLayout>
-		
+		<!-- 查找工具栏 -->
 		<LinearLayout android:id="@+id/findControls" android:layout_width="match_parent"
 			android:layout_alignParentTop="true"
 			android:layout_height="wrap_content" android:paddingTop="5dip"
@@ -119,7 +125,7 @@
 			android:src="@drawable/next_tab"
 			android:layout_height="wrap_content" android:layout_width="wrap_content"
 			android:layout_alignParentRight="true" android:layout_centerVertical="true"></ImageView>		
-
+		<!-- 底部工具栏 -->
 		<LinearLayout android:id="@+id/BottomBarLayout"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"	android:scaleType="fitXY"
 			android:layout_alignParentBottom="true" android:weightSum="5">
