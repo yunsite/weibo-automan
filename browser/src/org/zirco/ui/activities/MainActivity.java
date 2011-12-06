@@ -126,6 +126,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     protected LayoutInflater                 mInflater                       = null;
     /* 包括地址栏的顶部工具条 */
     private LinearLayout                     mTopBar;
+    /* 进度栏布局 */
     private LinearLayout                     mProgressBarLinear;
     /* 底部工具栏 */
     private LinearLayout                     mBottomBar;
@@ -381,7 +382,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         /* 手势监听器 */
         mGestureDetector = new GestureDetector(this, new GestureListener());
         /* 页面刚加载的时候，显示url输入地址栏，这个可以优化为不显示 */
-        mUrlBarVisible = false;
+        mUrlBarVisible = true;
 
         mWebViews = new ArrayList<CustomWebView>();
         Controller.getInstance().setWebViewList(mWebViews);
@@ -1351,7 +1352,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
             hideKeyboard();
 
-            if (url.equals(Constants.URL_ABOUT_START)) {
+            if (url.equals(Constants.URL_ABOUT_START) || url.equals(R.string.Main_AddressBarDefaultWords)) {
 
                 mCurrentWebView.loadDataWithBaseURL("file:///android_asset/startpage/",
                                                     ApplicationUtils.getStartPage(this), "text/html", "UTF-8",
@@ -1879,7 +1880,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         WebIconDatabase.getInstance().retainIconForPageUrl(mCurrentWebView.getUrl());
         /* 隐藏加载状态栏 */
         setProgressBarLinearVisible(false);
-
+        if (mUrlBarVisible && Constants.URL_ABOUT_START.equals(url)) {
+            mUrlEditText.requestFocus();
+            mUrlEditText.setText(R.string.Main_AddressBarDefaultWords);
+        }
     }
 
     /**
@@ -1891,8 +1895,11 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         if (mFindDialogVisible) {
             closeFindDialog();
         }
-        /* 隐藏地址栏 */
-        setUrlBarVisibility(false);
+        /* 非主页隐藏地址栏 */
+        if (!(Constants.URL_ABOUT_START.equals(url) && url.equals(R.string.Main_AddressBarDefaultWords))) {
+            /* 隐藏地址栏 */
+            setUrlBarVisibility(false);
+        }
         /* 显示加载状态栏 */
         setProgressBarLinearVisible(true);
     }

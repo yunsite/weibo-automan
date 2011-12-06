@@ -25,6 +25,7 @@
 	<string name="AboutActivity.UrlTextValue">http://code.google.com/p/zirco-browser/</string>
 	<string name="AboutActivity.LicenseTextValue">GPL v3</string>
 
+	<string name="Main.AddressBarDefaultWords">输入网址</string>
 	<string name="Main.ShowAddressBar">显示地址栏</string>
     <string name="Main.MenuAddBookmark">添加书签</string>
     <string name="Main.MenuShowBookmarks">书签</string>
