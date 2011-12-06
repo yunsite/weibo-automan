@@ -59,7 +59,7 @@ public class CustomWebViewClient extends WebViewClient {
         if (url.equals(Constants.URL_ABOUT_START)) {
             view.loadDataWithBaseURL("file:///android_asset/startpage/",
                                      ApplicationUtils.getStartPage(view.getContext()), "text/html", "UTF-8",
-                                     "about:start");
+                                     Constants.URL_ABOUT_START);
         }
 
         ((CustomWebView) view).notifyPageStarted();
