@@ -57,9 +57,8 @@ public class CustomWebViewClient extends WebViewClient {
         // whereas when the doing a "previous" or "next", the url is "about:start", and we need to perform the
         // loadDataWithBaseURL here, otherwise it won't load.
         if (url.equals(Constants.URL_ABOUT_START)) {
-            view.loadDataWithBaseURL("file:///android_asset/startpage/",
-                                     ApplicationUtils.getStartPage(view.getContext()), "text/html", "UTF-8",
-                                     Constants.URL_ABOUT_START);
+            view.loadDataWithBaseURL(Constants.URL_BASE_URL, ApplicationUtils.getStartPage(view.getContext()),
+                                     "text/html", "UTF-8", Constants.URL_ABOUT_START);
         }
 
         ((CustomWebView) view).notifyPageStarted();

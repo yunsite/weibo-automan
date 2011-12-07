@@ -35,6 +35,7 @@ public class Constants {
     public static final String URL_ACTION_SEARCH                         = "action:search?q=";
     public static final String URL_GOOGLE_MOBILE_VIEW                    = "http://www.google.com/gwt/x?u=%s";
     public static final String URL_GOOGLE_MOBILE_VIEW_NO_FORMAT          = "http://www.google.com/gwt/x?u=";
+    public static final String URL_BASE_URL                              = "file:///android_asset/startpage/";
 
     /**
      * Search urls.
