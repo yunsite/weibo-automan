@@ -132,6 +132,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private LinearLayout                     mBottomBar;
     /* 文字查找工具工具条 */
     private LinearLayout                     mFindBar;
+    /* 打开工具栏，这里的工具栏包括地址栏和底部工具栏 */
+    private LinearLayout                     mOpenToolBar;
 
     private ImageButton                      mFindPreviousButton;
     private ImageButton                      mFindNextButton;
@@ -164,6 +166,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private ImageButton                      mRemoveTabButton;
 
     private ImageButton                      mQuickButton;
+
+    private ImageButton                      mOpenToolBarButton;
     /* 输入URL后，地址栏右边的滚动加载效果，是通过配置文件drawable/spinner.xml中的8张图片循环显示达到的效果 */
     private Drawable                         mCircularProgress;
     /* 地址栏是否可见 */
@@ -174,6 +178,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private boolean                          mBubbleVisible;
     private boolean                          mToolsActionGridVisible         = false;
     private boolean                          mFindDialogVisible              = false;
+    private boolean                          mOpenToolBarVisible             = false;
 
     private TextWatcher                      mUrlTextWatcher;
 
@@ -217,7 +222,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         /* 设置打开后显示的Activity */
         setContentView(R.layout.main);
 
-        /* 滚动加载效果 */
+        /* 页面加载时，地址栏旁边的滚动加载效果 */
         mCircularProgress = getResources().getDrawable(R.drawable.spinner);
         /* 增加当前Activity的下载监听事件 */
         EventController.getInstance().addDownloadListener(this);
@@ -382,7 +387,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         /* 手势监听器 */
         mGestureDetector = new GestureDetector(this, new GestureListener());
         /* 页面刚加载的时候，显示url输入地址栏，这个可以优化为不显示 */
-        mUrlBarVisible = true;
+        mUrlBarVisible = false;
 
         mWebViews = new ArrayList<CustomWebView>();
         Controller.getInstance().setWebViewList(mWebViews);
@@ -419,17 +424,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 // between the buttons.
             }
         });
-
+        /* 进度条的布局 */
         mProgressBarLinear = (LinearLayout) findViewById(R.id.WebViewProgressLayout);
-        mProgressBarLinear.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-
-            }
-
-        });
 
         mBottomBar = (LinearLayout) findViewById(R.id.BottomBarLayout);
         mBottomBar.setOnClickListener(new OnClickListener() {
@@ -674,6 +670,18 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             }
         });
         /** 查找工具栏（结束）>>>>>>>>>> */
+        /* 打开工具栏 */
+        mOpenToolBar = (LinearLayout) findViewById(R.id.OpenToolBarLayout);
+        mOpenToolBarButton = (ImageButton) findViewById(R.id.OpenToolBarBtn);
+        mOpenToolBarButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                setOpenToolBarVisibility(false);
+                setUrlBarAndButtomBarVisibility(true);
+            }
+
+        });
 
     }
 
@@ -692,7 +700,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
-     * Apply preferences to the current UI objects.
+     * 个人设置保存后更新当前UI Apply preferences to the current UI objects.
      */
     public void applyPreferences() {
         // To update to Bubble position.
@@ -1110,7 +1118,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
-     * Change the tool bars visibility.
+     * 设置工具栏的可见性，包括顶部地址栏、底部工具栏、向前向后翻类似箭头的工具栏
      * 
      * @param visible If True, the tool bars will be shown.
      */
@@ -1162,6 +1170,16 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             }
             mButtomBarVisible = false;
         }
+    }
+
+    /**
+     * 设置地址栏以及底部工具栏的可见性
+     * 
+     * @param visible
+     */
+    private void setUrlBarAndButtomBarVisibility(boolean visible) {
+        setUrlBarVisibility(visible);
+        setButtomBarVisibility(visible);
     }
 
     /**
@@ -1252,6 +1270,27 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
+     * 设置用于打于地址栏和底部工具栏的工具栏，是否可见
+     * 
+     * @param visible
+     */
+    private void setOpenToolBarVisibility(boolean visible) {
+        if (visible) {
+            if (!mOpenToolBarVisible) {
+                mOpenToolBar.startAnimation(AnimationManager.getInstance().getBottomBarShowAnimation());
+                mOpenToolBar.setVisibility(View.VISIBLE);
+            }
+            mOpenToolBarVisible = Boolean.TRUE;
+        } else {
+            if (mOpenToolBarVisible) {
+                mOpenToolBar.startAnimation(AnimationManager.getInstance().getBottomBarHideAnimation());
+                mOpenToolBar.setVisibility(View.GONE);
+            }
+            mOpenToolBarVisible = Boolean.FALSE;
+        }
+    }
+
+    /**
      * 为查找对话框显示输入键盘
      */
     private void showKeyboardForFindDialog() {
@@ -1270,13 +1309,9 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     /**
      * 隐藏输入键盘，如果地址栏是显示的，则这里把地址栏隐藏起来
      */
-    private void hideKeyboard() {
+    private void hideKeyboardFromUrlEditText() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mUrlEditText.getWindowToken(), 0);
-
-        if (mUrlBarVisible) {
-            setUrlBarVisibility(false);
-        }
     }
 
     /**
@@ -1350,13 +1385,15 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
                 url = UrlUtils.getSearchUrl(this, url);
             }
 
-            hideKeyboard();
+            hideKeyboardFromUrlEditText();
+            if (mUrlBarVisible) {
+                setUrlBarVisibility(false);
+            }
 
             if (url.equals(Constants.URL_ABOUT_START) || url.equals(R.string.Main_AddressBarDefaultWords)) {
 
-                mCurrentWebView.loadDataWithBaseURL("file:///android_asset/startpage/",
-                                                    ApplicationUtils.getStartPage(this), "text/html", "UTF-8",
-                                                    Constants.URL_ABOUT_START);
+                mCurrentWebView.loadDataWithBaseURL(Constants.URL_BASE_URL, ApplicationUtils.getStartPage(this),
+                                                    "text/html", "UTF-8", Constants.URL_ABOUT_START);
 
             } else {
 
@@ -1395,7 +1432,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         // Needed to hide toolbars properly.
         mUrlEditText.clearFocus();
 
-        hideKeyboard();
+        hideKeyboardFromUrlEditText();
+        if (mUrlBarVisible) {
+            setUrlBarVisibility(false);
+        }
         mCurrentWebView.goBack();
     }
 
@@ -1406,7 +1446,10 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         // Needed to hide toolbars properly.
         mUrlEditText.clearFocus();
 
-        hideKeyboard();
+        hideKeyboardFromUrlEditText();
+        if (mUrlBarVisible) {
+            setUrlBarVisibility(false);
+        }
         mCurrentWebView.goForward();
     }
 
@@ -1836,11 +1879,15 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         }
     }
 
+    /* 屏幕触摸时所触发的事件 */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
-        hideKeyboard();
-
+        hideKeyboardFromUrlEditText();
+        if (!isHomePage()) {
+            setUrlBarVisibility(false);
+            setButtomBarVisibility(false);
+            setToolbarsVisibility(true);
+        }
         return mGestureDetector.onTouchEvent(event);
     }
 
@@ -1895,13 +1942,31 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         if (mFindDialogVisible) {
             closeFindDialog();
         }
-        /* 非主页隐藏地址栏 */
-        if (!(Constants.URL_ABOUT_START.equals(url) && url.equals(R.string.Main_AddressBarDefaultWords))) {
-            /* 隐藏地址栏 */
-            setUrlBarVisibility(false);
+        boolean visible = Boolean.FALSE;
+        /* 打开主页时显示地址栏及底部工具栏，其它页面则隐藏 */
+        if (Constants.URL_BASE_URL.equals(url) || Constants.URL_ABOUT_START.equals(url)
+            || url.equals(R.string.Main_AddressBarDefaultWords)) {
+            visible = Boolean.TRUE;
         }
+        setUrlBarAndButtomBarVisibility(visible);
+        setOpenToolBarVisibility(!visible);
         /* 显示加载状态栏 */
         setProgressBarLinearVisible(true);
+    }
+
+    /**
+     * 检测当前页面是否主页
+     * 
+     * @return
+     */
+    private boolean isHomePage() {
+        boolean is = Boolean.FALSE;
+        String currentUrl = mCurrentWebView.getUrl();
+        if (Constants.URL_BASE_URL.equals(currentUrl) || Constants.URL_ABOUT_START.equals(currentUrl)
+            || currentUrl.equals(R.string.Main_AddressBarDefaultWords)) {
+            is = Boolean.TRUE;
+        }
+        return is;
     }
 
     /**
