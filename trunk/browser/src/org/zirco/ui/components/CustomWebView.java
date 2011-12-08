@@ -23,9 +23,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebSettings.ZoomDensity;
+import android.webkit.WebView;
 
 /**
  * 一个扩展的WebView.
