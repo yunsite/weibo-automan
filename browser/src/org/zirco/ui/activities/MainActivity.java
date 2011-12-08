@@ -134,6 +134,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private LinearLayout                     mFindBar;
     /* 打开工具栏，这里的工具栏包括地址栏和底部工具栏 */
     private LinearLayout                     mOpenToolBar;
+    /* 停止加载当前页面，位于页面的左下脚 */
+    private LinearLayout                     mStopLoadingBar;
 
     private ImageButton                      mFindPreviousButton;
     private ImageButton                      mFindNextButton;
@@ -168,6 +170,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private ImageButton                      mQuickButton;
 
     private ImageButton                      mOpenToolBarButton;
+    private ImageButton                      mStopLoadingBarButton;
     /* 输入URL后，地址栏右边的滚动加载效果，是通过配置文件drawable/spinner.xml中的8张图片循环显示达到的效果 */
     private Drawable                         mCircularProgress;
     /* 地址栏是否可见 */
@@ -178,7 +181,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private boolean                          mBubbleVisible;
     private boolean                          mToolsActionGridVisible         = false;
     private boolean                          mFindDialogVisible              = false;
-    private boolean                          mOpenToolBarVisible             = false;
+    private boolean                          mOpenToolBarVisible             = true;
+    private boolean                          mStopLoadingBarVisible          = true;
 
     private TextWatcher                      mUrlTextWatcher;
 
@@ -679,6 +683,19 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
             public void onClick(View v) {
                 setOpenToolBarVisibility(false);
                 setUrlBarAndButtomBarVisibility(true);
+            }
+
+        });
+        mStopLoadingBar = (LinearLayout) findViewById(R.id.StopLoadingBarLayout);
+        mStopLoadingBarButton = (ImageButton) findViewById(R.id.StopLoadingBarBtn);
+        mStopLoadingBarButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (mCurrentWebView.isLoading()) {/* 正在加载就停止加载 */
+                    mCurrentWebView.stopLoading();
+                }
+                setStopLoadingBarVisibility(false);
             }
 
         });
@@ -1291,6 +1308,27 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     }
 
     /**
+     * 设置左下脚停止加载的按钮是否可见
+     * 
+     * @param visible
+     */
+    private void setStopLoadingBarVisibility(boolean visible) {
+        if (visible) {
+            if (!mStopLoadingBarVisible) {
+                mStopLoadingBar.startAnimation(AnimationManager.getInstance().getBottomBarShowAnimation());
+                mStopLoadingBar.setVisibility(View.VISIBLE);
+            }
+            mStopLoadingBarVisible = Boolean.TRUE;
+        } else {
+            if (mStopLoadingBarVisible) {
+                mStopLoadingBar.startAnimation(AnimationManager.getInstance().getBottomBarHideAnimation());
+                mStopLoadingBar.setVisibility(View.GONE);
+            }
+            mStopLoadingBarVisible = Boolean.FALSE;
+        }
+    }
+
+    /**
      * 为查找对话框显示输入键盘
      */
     private void showKeyboardForFindDialog() {
@@ -1886,7 +1924,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         if (!isHomePage()) {
             setUrlBarVisibility(false);
             setButtomBarVisibility(false);
-            setToolbarsVisibility(true);
+            setOpenToolBarVisibility(true);
         }
         return mGestureDetector.onTouchEvent(event);
     }
@@ -1927,10 +1965,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         WebIconDatabase.getInstance().retainIconForPageUrl(mCurrentWebView.getUrl());
         /* 隐藏加载状态栏 */
         setProgressBarLinearVisible(false);
-        if (mUrlBarVisible && Constants.URL_ABOUT_START.equals(url)) {
-            mUrlEditText.requestFocus();
-            mUrlEditText.setText(R.string.Main_AddressBarDefaultWords);
-        }
+        setStopLoadingBarVisibility(false);
     }
 
     /**
@@ -1952,6 +1987,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         setOpenToolBarVisibility(!visible);
         /* 显示加载状态栏 */
         setProgressBarLinearVisible(true);
+        setStopLoadingBarVisibility(!visible);
     }
 
     /**
