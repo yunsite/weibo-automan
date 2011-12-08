@@ -113,7 +113,9 @@ public final class Controller {
     public void addToDownload(DownloadItem item) {
         mDownloadList.add(item);
     }
-
+    /**
+     * 请除下载完成的任务，保留未下载完成的任务
+     */
     public synchronized void clearCompletedDownloads() {
         List<DownloadItem> newList = new ArrayList<DownloadItem>();
 

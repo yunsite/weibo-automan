@@ -40,8 +40,18 @@ public class DownloadItem {
 
     private boolean             mIsFinished;
     private boolean             mIsAborted;
-
+    /**
+     * 用于通知用户的事件管理类，可以将后台发生的事情通知给用户；通知的方式有：<br>
+     * 1、通过显示 一个Intent进行提示；<br>
+     * 2、打开设备上的LED灯；<br>
+     * 3、打开背光灯；<br>
+     * 4、发出声音；<br>
+     * 5、通过震动等方式；
+     */
     private NotificationManager mNotificationManager;
+    /**
+     * 用于表示通过NotificationManager如何通知到用户的具体类，通过Notification.Builder可以方便的构造通知。
+     */
     private Notification        mNotification;
     private int                 mNotificationId;
 
@@ -152,7 +162,7 @@ public class DownloadItem {
     }
 
     /**
-     * Start the current download.
+     * 开始后台线程开始下载
      */
     public void startDownload() {
         if (mRunnable != null) {
@@ -191,7 +201,7 @@ public class DownloadItem {
     }
 
     /**
-     * Create the download notification.
+     * 创建下载通知，开始下载的时候调用
      */
     private void createNotification() {
         mNotification = new Notification(R.drawable.download_anim,
@@ -199,6 +209,12 @@ public class DownloadItem {
                                          System.currentTimeMillis());
 
         Intent notificationIntent = new Intent(mContext.getApplicationContext(), DownloadsListActivity.class);
+        /**
+         * PendingIntent是Intent的描述以及与它一起执行的目标动作，此类的实例通过getActivity(Context, int, Intent, int), getBroadcast(Context,
+         * int, Intent, int), getService(Context, int, Intent, int)方法进行创建，返回的对象根据最后一次的描述，可交给其它应用程序处理。
+         * 通过将PendingIntent交给其它应用程序，你可以赋予其它程序相应的权限来操作PendingIntent
+         * ，就像自己处理一定；因此在创建PendingIntent的时候就需要注意一下了，例如，指定相就的名字，用于保证将它发送到指定的地方；
+         */
         PendingIntent contentIntent = PendingIntent.getActivity(mContext.getApplicationContext(), 0,
                                                                 notificationIntent, 0);
 
@@ -210,7 +226,7 @@ public class DownloadItem {
     }
 
     /**
-     * Update the download notification at the end of download.
+     * 在下载完成后更新下载通知
      */
     private void updateNotificationOnEnd() {
         if (mNotification != null) {
