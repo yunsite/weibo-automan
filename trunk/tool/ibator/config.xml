@@ -8,7 +8,7 @@
   <classPathEntry location="mysql-connector-java-5.1.13-bin.jar" />
   <ibatorContext id="MysqlTables" targetRuntime="Ibatis2Java2">
     <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-        connectionURL="jdbc:mysql://127.0.0.1:3306/weibo?characterEncoding=utf8"
+        connectionURL="jdbc:mysql://127.0.0.1:3306/weibo?characterEncoding=gbk"
         userId="root"
         password="1212121212">
     </jdbcConnection>
@@ -32,6 +32,7 @@
     <table tableName="users"></table>
     <table tableName="users_time_msg"></table>
     <table tableName="users_weibo"></table>
-	<table tableName="users_send_msg"></table>
+	  <table tableName="users_send_msg"></table>
+    <table tableName="users_special"></table>
   </ibatorContext>
 </ibatorConfiguration>
