@@ -92,6 +92,7 @@ CREATE TABLE `users` (
   `status` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '帐号状态，待细化',
   `score` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '积分',
   `last_login_date` datetime DEFAULT NULL COMMENT '最后登时间（若需要每天第一次登录增加积，需要此字段）',
+  `last_task_date` datetime DEFAULT NULL COMMENT '最后任务时间',
   PRIMARY KEY (`id`),
   KEY `users_name` (`name`),
   KEY `users_email` (`email`)
@@ -120,7 +121,7 @@ DROP TABLE IF EXISTS `users_time_msg`;
 CREATE TABLE `users_time_msg` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'pk',
   `user_id` bigint(20) unsigned NOT NULL COMMENT '用户的id',
-  `weibo_id` varchar(3000) NOT NULL '多个微博ID，以JSON数据表示',
+  `weibo_id` varchar(3000) NOT NULL COMMENT '多个微博ID，以JSON数据表示',
   `msg_content` varchar(300) NOT NULL COMMENT '微博内容',
   `msg_picture` varchar(100) DEFAULT NULL COMMENT '配图的url',
   `send_time` int(11) NOT NULL COMMENT '当前消息需要发送的时间，使用unix_timestamp',
@@ -131,8 +132,8 @@ CREATE TABLE `users_time_msg` (
   PRIMARY KEY (`id`),
   KEY `users_time_msg_weibo_id_send_time_is_send` (`user_id`,`send_time`,`is_send`,`send_type`),
   KEY `users_time_msg_user_id_send_time_is_send` (`user_id`,`send_time`,`is_send`),
-  KEY `users_time_msg_weibo_id_send_time_is_send` (`send_time`,`is_send`,`send_type`),
-  KEY `users_time_msg_user_id_send_time_is_send` (`send_time`,`is_send`)
+  KEY `users_time_msg_send_time_is_send_send_type` (`send_time`,`is_send`,`send_type`),
+  KEY `users_time_msg_send_time_is_send` (`send_time`,`is_send`)
 ) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
 
@@ -160,3 +161,10 @@ CREATE TABLE `users_weibo` (
   KEY `users_weibo_token_token_secret` (`token`,`token_secret`)
 ) ENGINE=InnoDB DEFAULT CHARSET=gbk;
 
+DROP TABLE IF EXISTS `users_special`;
+CREATE TABLE `users_special` (
+  `user_id` bigint(20) unsigned NOT NULL COMMENT 'pk，用户的ID，和Users表中的ID字段映射',
+  `time_interval` int unsigned default 0 NOT NULL COMMENT '发送的时间间隔，以分钟为单位',
+  `type_id` int(10) unsigned default 0 NOT NULL COMMENT '类型id',
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=gbk;
