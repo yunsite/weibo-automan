@@ -7,7 +7,7 @@ import weiboautoman.timer.dataobject.UsersSendMsg;
 
 public class UsersSendMsgDAOImpl extends SqlMapClientDaoSupport implements UsersSendMsgDAO {
 
-    public UsersSendMsgDAOImpl() {
+    public UsersSendMsgDAOImpl(){
         super();
     }
 
@@ -29,7 +29,8 @@ public class UsersSendMsgDAOImpl extends SqlMapClientDaoSupport implements Users
     public UsersSendMsg selectByPrimaryKey(Long id) {
         UsersSendMsg key = new UsersSendMsg();
         key.setId(id);
-        UsersSendMsg record = (UsersSendMsg) getSqlMapClientTemplate().queryForObject("users_send_msg.selectByPrimaryKey", key);
+        UsersSendMsg record = (UsersSendMsg) getSqlMapClientTemplate().queryForObject("users_send_msg.selectByPrimaryKey",
+                                                                                      key);
         return record;
     }
 

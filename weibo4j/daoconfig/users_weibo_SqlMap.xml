@@ -35,6 +35,11 @@
     from users_weibo
     where id = #id:BIGINT#
   </select>
+  <select id="selectUserWeiboByUserId" resultMap="SmallResultMap" parameterClass="weiboautoman.timer.dataobject.UsersWeibo" >
+    select id, user_id, weibo_id, weibo_email, token, token_secret, weibo_type, nick
+    from users_weibo
+    where user_id = #userId:BIGINT#
+  </select>
   <delete id="deleteByPrimaryKey" parameterClass="weiboautoman.timer.dataobject.UsersWeibo" >
     delete from users_weibo
     where id = #id:BIGINT#

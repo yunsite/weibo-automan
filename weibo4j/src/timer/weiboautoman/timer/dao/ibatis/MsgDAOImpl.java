@@ -1,5 +1,8 @@
 package weiboautoman.timer.dao.ibatis;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 import weiboautoman.timer.dao.MsgDAO;
@@ -7,7 +10,7 @@ import weiboautoman.timer.dataobject.Msg;
 
 public class MsgDAOImpl extends SqlMapClientDaoSupport implements MsgDAO {
 
-    public MsgDAOImpl() {
+    public MsgDAOImpl(){
         super();
     }
 
@@ -41,5 +44,14 @@ public class MsgDAOImpl extends SqlMapClientDaoSupport implements MsgDAO {
     public int updateByPrimaryKey(Msg record) {
         int rows = getSqlMapClientTemplate().update("msg.updateByPrimaryKey", record);
         return rows;
+    }
+
+    @Override
+    public Msg selectOneNotSendMessage(Long userId, int typeId) {
+        Map para = new HashMap();
+        para.put("userId", userId);
+        para.put("typeId", typeId);
+        Msg record = (Msg) getSqlMapClientTemplate().queryForObject("msg.selectOneNotSendMessage", para);
+        return record;
     }
 }

@@ -13,6 +13,17 @@
     from msg
     where id = #id:BIGINT#
   </select>
+  <!-- 根据user_id随机查出一条未发送过的记录 -->
+  <select id="selectOneNotSendMessage" resultMap="BaseResultMap" parameterClass="java.util.Map" >
+    select t1.id, t1.content, t1.sortno, t1.type_id, t1.picture FROM `msg` AS t1 
+	JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `msg`)-(SELECT MIN(id) FROM `msg`))+(SELECT MIN(id) FROM `msg`)) AS id) AS t2 
+	WHERE not exists (select 1 from users_send_msg where msg_id=t1.id and user_id=#userId:BIGINT#)
+	and t1.id >= t2.id 
+	<isGreaterThan prepend="and" property="typeId" compareValue="0">
+        t1.type_id=#typeId#
+    </isGreaterThan>
+	LIMIT 1;
+  </select>
   <delete id="deleteByPrimaryKey" parameterClass="weiboautoman.timer.dataobject.Msg" >
     delete from msg
     where id = #id:BIGINT#
