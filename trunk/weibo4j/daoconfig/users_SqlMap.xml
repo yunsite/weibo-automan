@@ -5,15 +5,16 @@
     <result column="id" property="id" jdbcType="BIGINT" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="password" property="password" jdbcType="VARCHAR" />
-    <result column="email" property="email" jdbcType="BIGINT" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
     <result column="reg_date" property="regDate" jdbcType="TIMESTAMP" />
     <result column="reg_ip" property="regIp" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
     <result column="score" property="score" jdbcType="INTEGER" />
     <result column="last_login_date" property="lastLoginDate" jdbcType="TIMESTAMP" />
+    <result column="last_task_date" property="lastTaskDate" jdbcType="TIMESTAMP" />
   </resultMap>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="weiboautoman.timer.dataobject.Users" >
-    select id, name, password, email, reg_date, reg_ip, status, score, last_login_date
+    select id, name, password, email, reg_date, reg_ip, status, score, last_login_date, last_task_date
     from users
     where id = #id:BIGINT#
   </select>
@@ -22,9 +23,9 @@
     where id = #id:BIGINT#
   </delete>
   <insert id="insert" parameterClass="weiboautoman.timer.dataobject.Users" >
-    insert into users (id, name, password, email, reg_date, reg_ip, status, score, last_login_date)
+    insert into users (id, name, password, email, reg_date, reg_ip, status, score, last_login_date, last_task_date)
     values (#id:BIGINT#, #name:VARCHAR#, #password:VARCHAR#, #email:BIGINT#, #regDate:TIMESTAMP#,
-      #regIp:VARCHAR#, #status:INTEGER#, #score:INTEGER#, #lastLoginDate:TIMESTAMP#)
+      #regIp:VARCHAR#, #status:INTEGER#, #score:INTEGER#, #lastLoginDate:TIMESTAMP#, #lastTaskDate:TIMESTAMP#)
   </insert>
   <insert id="insertSelective" parameterClass="weiboautoman.timer.dataobject.Users" >
     insert into users
@@ -55,6 +56,9 @@
       </isNotNull>
       <isNotNull prepend="," property="lastLoginDate" >
         last_login_date
+      </isNotNull>
+      <isNotNull prepend="," property="lastTaskDate" >
+        last_task_date
       </isNotNull>
       )
     </dynamic>
@@ -87,6 +91,9 @@
       <isNotNull prepend="," property="lastLoginDate" >
         #lastLoginDate:TIMESTAMP#
       </isNotNull>
+      <isNotNull prepend="," property="lastTaskDate" >
+        #lastTaskDate:TIMESTAMP#
+      </isNotNull>
       )
     </dynamic>
   </insert>
@@ -117,6 +124,9 @@
       <isNotNull prepend="," property="lastLoginDate" >
         last_login_date = #lastLoginDate:TIMESTAMP#
       </isNotNull>
+      <isNotNull prepend="," property="lastTaskDate" >
+        last_task_date = #lastTaskDate:TIMESTAMP#
+      </isNotNull>
     </dynamic>
     where id = #id:BIGINT#
   </update>
@@ -129,7 +139,8 @@
       reg_ip = #regIp:VARCHAR#,
       status = #status:INTEGER#,
       score = #score:INTEGER#,
-      last_login_date = #lastLoginDate:TIMESTAMP#
+      last_login_date = #lastLoginDate:TIMESTAMP#,
+      last_task_date = #lastTaskDate:TIMESTAMP#
     where id = #id:BIGINT#
   </update>
 </sqlMap>

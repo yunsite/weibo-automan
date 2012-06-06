@@ -8,4 +8,6 @@
 	<sqlMap url="${baseurl}/users_SqlMap.xml" />
 	<sqlMap url="${baseurl}/users_time_msg_SqlMap.xml" />
 	<sqlMap url="${baseurl}/users_weibo_SqlMap.xml" />
+	<sqlMap url="${baseurl}/users_special_SqlMap.xml" />
+	<sqlMap url="${baseurl}/users_send_msg_SqlMap.xml" />
 </sqlMapConfig>

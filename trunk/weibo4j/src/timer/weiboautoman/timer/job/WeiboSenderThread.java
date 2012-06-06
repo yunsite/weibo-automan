@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import weibo4j.WeiboException;
 import weiboautoman.timer.bo.UsersTimeMsgBO;
 import weiboautoman.timer.core.Constants;
@@ -45,6 +46,12 @@ public class WeiboSenderThread implements Runnable, Cloneable {
         try {
             long totalCount = usersTimeMsgDAO.selectByUserIdFirstNumberLikeCount(String.valueOf(userIdFirstNumber),
                                                                                  sendType);
+            if (totalCount <= 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug("totalCount is :" + totalCount);
+                }
+                return;
+            }
             long pages = NumberUtil.getPages(totalCount, Constants.DEFAULT_PAGE_SIZE);
             if (log.isDebugEnabled()) {
                 log.debug("userIdFirstNumber:" + userIdFirstNumber + " get totalCount:" + totalCount + " ,pages:"
@@ -163,6 +170,7 @@ public class WeiboSenderThread implements Runnable, Cloneable {
             if (log.isWarnEnabled()) {
                 log.warn("can not get WeiboSender by weibo type:" + msgVO.getWeiboType());
             }
+            return;
         }
         sender.setImagePath(imagePath);
         SendResult result = sender.send(msgVO);

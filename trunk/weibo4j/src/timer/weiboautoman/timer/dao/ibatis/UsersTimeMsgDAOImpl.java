@@ -25,6 +25,7 @@ public class UsersTimeMsgDAOImpl extends SqlMapClientDaoSupport implements Users
 
     public void insert(UsersTimeMsg record) {
         getSqlMapClientTemplate().insert("users_time_msg.insert", record);
+        throw new RuntimeException("test exception.");
     }
 
     public void insertSelective(UsersTimeMsg record) {

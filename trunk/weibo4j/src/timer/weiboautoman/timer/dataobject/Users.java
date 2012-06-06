@@ -3,23 +3,26 @@ package weiboautoman.timer.dataobject;
 import java.util.Date;
 
 public class Users {
-    private Long id;
 
-    private String name;
+    private Long    id;
 
-    private String password;
+    private String  name;
 
-    private Long email;
+    private String  password;
 
-    private Date regDate;
+    private String  email;
 
-    private String regIp;
+    private Date    regDate;
+
+    private String  regIp;
 
     private Integer status;
 
     private Integer score;
 
-    private Date lastLoginDate;
+    private Date    lastLoginDate;
+
+    private Date    lastTaskDate;
 
     public Long getId() {
         return id;
@@ -45,11 +48,11 @@ public class Users {
         this.password = password == null ? null : password.trim();
     }
 
-    public Long getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(Long email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -92,4 +95,13 @@ public class Users {
     public void setLastLoginDate(Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
+
+    public Date getLastTaskDate() {
+        return lastTaskDate;
+    }
+
+    public void setLastTaskDate(Date lastTaskDate) {
+        this.lastTaskDate = lastTaskDate;
+    }
+
 }

@@ -1,5 +1,7 @@
 package weiboautoman.timer.dao.ibatis;
 
+import java.util.List;
+
 import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
 
 import weiboautoman.timer.dao.UsersWeiboDAO;
@@ -51,5 +53,13 @@ public class UsersWeiboDAOImpl extends SqlMapClientDaoSupport implements UsersWe
         UsersWeiboVO record = (UsersWeiboVO) getSqlMapClientTemplate().queryForObject("users_weibo.selectByPrimaryKeySmall",
                                                                                       key);
         return record;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<UsersWeiboVO> selectUserWeiboByUserId(Long userId) {
+        UsersWeibo key = new UsersWeibo();
+        key.setUserId(userId);
+        return getSqlMapClientTemplate().queryForList("users_weibo.selectUserWeiboByUserId", key);
     }
 }
